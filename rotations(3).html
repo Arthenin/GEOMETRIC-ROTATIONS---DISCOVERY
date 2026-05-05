@@ -1,0 +1,2314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rotations About the Origin — A Discovery Lesson</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-card: #f8fafc;
+    --bg-elevated: #ffffff;
+    --ink: #0f172a;
+    --ink-soft: #334155;
+    --ink-mute: #64748b;
+    --rule: rgba(15,23,42,0.10);
+    --rule-strong: rgba(15,23,42,0.20);
+    --accent: #e11d48;       /* vivid rose */
+    --accent-soft: #ffe4ec;
+    --pre: #4338ca;          /* vivid indigo - pre-image */
+    --pre-soft: #e0e7ff;
+    --img: #059669;          /* vivid emerald - image */
+    --img-soft: #d1fae5;
+    --arc: #e11d48;          /* rose for arcs */
+    --gold: #d97706;         /* warm gold for selection highlight */
+    --serif: Georgia, 'Times New Roman', 'Iowan Old Style', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --mono: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-weight: 400; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  body { min-height: 100vh; }
+
+  /* ============ Layout ============ */
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px 80px; }
+
+  header.site {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 32px;
+  }
+  header.site .inner {
+    max-width: 1080px; margin: 0 auto;
+    display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  }
+  .brand { font-family: var(--serif); font-size: 22px; letter-spacing: -0.01em; }
+  .brand em { font-style: italic; color: var(--accent); }
+  .crumbs { font-size: 13px; color: var(--ink-mute); letter-spacing: 0.02em; }
+  .crumbs span { margin: 0 6px; opacity: 0.5; }
+  .crumbs .active { color: var(--ink); opacity: 1; }
+
+  /* ============ Hero ============ */
+  .hero { padding: 24px 0 40px; max-width: 760px; }
+  .eyebrow { font-size: 12px; font-weight: 500; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 16px; }
+  h1 { font-family: var(--serif); font-size: clamp(40px, 6vw, 64px); font-weight: 400; line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 20px; }
+  h1 em { font-style: italic; color: var(--accent); }
+  .lede { font-size: 18px; color: var(--ink-soft); line-height: 1.55; max-width: 640px; }
+
+  /* ============ TOC ============ */
+  .toc { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 32px 0 56px; }
+  .toc-item { display: block; padding: 16px; background: var(--bg-card); border: 1px solid var(--rule); border-radius: 10px; text-decoration: none; color: var(--ink); transition: all 0.2s ease; cursor: pointer; }
+  .toc-item:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(15,23,42,0.06); }
+  .toc-item .num { font-family: var(--mono); font-size: 11px; color: var(--ink-mute); margin-bottom: 6px; }
+  .toc-item .nm { font-family: var(--serif); font-size: 19px; margin-bottom: 4px; }
+  .toc-item .ds { font-size: 12px; color: var(--ink-soft); line-height: 1.4; }
+
+  /* ============ Section ============ */
+  section { margin: 64px 0 48px; scroll-margin-top: 24px; }
+  .sec-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 8px; padding-bottom: 12px; border-bottom: 1px solid var(--rule-strong); }
+  .sec-head .num { font-family: var(--mono); font-size: 13px; color: var(--accent); font-weight: 500; }
+  .sec-head h2 { font-family: var(--serif); font-size: 36px; font-weight: 400; letter-spacing: -0.01em; line-height: 1.1; }
+  .sec-head h2 em { font-style: italic; color: var(--accent); }
+  .sec-intro { font-size: 16px; color: var(--ink-soft); margin: 16px 0 28px; max-width: 720px; line-height: 1.6; }
+  .sec-intro strong { color: var(--ink); font-weight: 600; }
+
+  /* ============ Cards ============ */
+  .card { background: var(--bg-card); border: 1px solid var(--rule); border-radius: 14px; padding: 24px; margin: 20px 0; }
+  .card.elevated { background: var(--bg-elevated); }
+  .card-label { font-size: 11px; font-weight: 500; color: var(--ink-mute); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; }
+
+  /* ============ Sandbox layout ============ */
+  .sandbox { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 20px; align-items: start; }
+  @media (max-width: 820px) { .sandbox { grid-template-columns: 1fr; } }
+  .sandbox-canvas { background: var(--bg-elevated); border: 1px solid var(--rule); border-radius: 12px; padding: 12px; }
+  .sandbox-controls { background: var(--bg-card); border: 1px solid var(--rule); border-radius: 12px; padding: 16px; }
+
+  /* ============ Form controls ============ */
+  .control-group { margin-bottom: 18px; }
+  .control-group:last-child { margin-bottom: 0; }
+  .control-label { font-size: 11px; font-weight: 500; color: var(--ink-mute); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; display: block; }
+  .seg { display: flex; gap: 4px; padding: 4px; background: var(--bg); border-radius: 8px; border: 1px solid var(--rule); }
+  .seg button { flex: 1; padding: 7px 6px; font-size: 12px; font-family: var(--sans); font-weight: 500; border-radius: 5px; cursor: pointer; border: none; background: transparent; color: var(--ink-soft); transition: all 0.15s; }
+  .seg button.active { background: var(--ink); color: var(--bg-card); }
+  .seg button:hover:not(.active) { color: var(--ink); }
+
+  .slider-wrap { display: flex; align-items: center; gap: 10px; }
+  input[type="range"] { flex: 1; -webkit-appearance: none; appearance: none; height: 4px; background: var(--rule-strong); border-radius: 2px; outline: none; }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid var(--bg-card); box-shadow: 0 0 0 1px var(--rule-strong); }
+  input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid var(--bg-card); }
+  .slider-val { font-family: var(--mono); font-size: 12px; color: var(--ink); min-width: 38px; text-align: right; }
+
+  .btn-row { display: flex; gap: 8px; margin-top: 8px; }
+  .btn { padding: 9px 14px; font-size: 12px; font-family: var(--sans); font-weight: 500; border-radius: 7px; cursor: pointer; border: 1px solid var(--rule); background: var(--bg-elevated); color: var(--ink); transition: all 0.15s; flex: 1; letter-spacing: 0.02em; }
+  .btn:hover { border-color: var(--ink); }
+  .btn.primary { background: var(--ink); color: var(--bg-card); border-color: var(--ink); }
+  .btn.primary:hover { background: var(--accent); border-color: var(--accent); }
+  .btn.ghost { background: transparent; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ============ Coordinate table ============ */
+  .coord-table { font-family: var(--mono); font-size: 12px; width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .coord-table th { text-align: left; padding: 6px 8px; color: var(--ink-mute); font-weight: 500; border-bottom: 1px solid var(--rule); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .coord-table td { padding: 6px 8px; border-bottom: 1px solid var(--rule); }
+  .coord-table tr td:first-child { color: var(--pre); font-weight: 500; }
+  .coord-table tr td:last-child { color: var(--img); font-weight: 500; }
+
+  /* ============ Question / Tip blocks ============ */
+  .tip { padding: 16px 18px; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; margin: 20px 0; font-size: 14px; color: var(--ink-soft); }
+  .tip strong { color: var(--accent); font-weight: 600; }
+
+  .question-block { background: var(--bg-card); border: 1px solid var(--rule); border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .question-block .q-num { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+  .question-block .q-prompt { font-size: 15px; color: var(--ink); margin-bottom: 14px; line-height: 1.5; }
+  .q-options { display: flex; flex-direction: column; gap: 8px; }
+  .q-option { padding: 10px 14px; background: var(--bg-elevated); border: 1px solid var(--rule); border-radius: 7px; cursor: pointer; font-size: 13px; transition: all 0.15s; text-align: left; font-family: var(--sans); color: var(--ink); }
+  .q-option:hover:not(.locked) { border-color: var(--ink-soft); }
+  .q-option.correct { background: var(--img-soft); border-color: var(--img); color: var(--ink); }
+  .q-option.wrong { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+  .q-option.locked { cursor: default; }
+  .q-feedback { margin-top: 12px; font-size: 13px; padding: 10px 12px; border-radius: 7px; display: none; line-height: 1.5; }
+  .q-feedback.show { display: block; }
+  .q-feedback.right { background: var(--img-soft); color: #07432f; }
+  .q-feedback.wrong-fb { background: var(--accent-soft); color: #5e2008; }
+
+  /* Reveal block for "show answer" */
+  .reveal { margin-top: 12px; }
+  .reveal-btn { font-size: 12px; padding: 6px 12px; background: transparent; border: 1px dashed var(--rule-strong); color: var(--ink-soft); cursor: pointer; border-radius: 6px; font-family: var(--sans); }
+  .reveal-btn:hover { border-color: var(--ink); color: var(--ink); }
+  .reveal-content { display: none; margin-top: 10px; padding: 12px 14px; background: var(--bg-elevated); border-left: 3px solid var(--img); border-radius: 0 7px 7px 0; font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; }
+  .reveal-content.show { display: block; }
+
+  /* ============ Rules summary cards ============ */
+  .rules-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0; }
+  @media (max-width: 720px) { .rules-grid { grid-template-columns: 1fr; } }
+  .rule-card { background: var(--bg-elevated); border: 1px solid var(--rule); border-radius: 12px; padding: 18px; }
+  .rule-card .rname { font-family: var(--serif); font-size: 18px; margin-bottom: 4px; }
+  .rule-card .rsub { font-size: 11px; color: var(--ink-mute); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px; }
+  .rule-card .rule-graph { width: 100%; aspect-ratio: 1; display: block; background: var(--bg-card); border-radius: 8px; margin-bottom: 12px; }
+  .rule-card .rfm { font-family: var(--mono); font-size: 15px; color: var(--accent); padding: 10px 12px; background: var(--accent-soft); border-radius: 7px; text-align: center; }
+  .rule-card .rex { font-family: var(--mono); font-size: 12px; color: var(--ink-soft); margin-top: 8px; text-align: center; }
+
+  /* ============ Paper method ============ */
+  .paper-steps { display: grid; grid-template-columns: 1fr; gap: 14px; margin: 20px 0; }
+  .paper-step { display: grid; grid-template-columns: 36px 1fr; gap: 14px; align-items: start; padding: 14px 16px; background: var(--bg-card); border: 1px solid var(--rule); border-radius: 10px; }
+  .paper-step .stepnum { font-family: var(--serif); font-size: 22px; color: var(--accent); line-height: 1; padding-top: 4px; }
+  .paper-step .steptxt { font-size: 14px; color: var(--ink-soft); line-height: 1.55; }
+  .paper-step .steptxt strong { color: var(--ink); }
+  .paper-step .steptxt code { font-family: var(--mono); font-size: 12.5px; background: var(--bg); padding: 1px 6px; border-radius: 4px; color: var(--accent); }
+
+  /* ============ Score banner ============ */
+  .score-banner { background: var(--ink); color: var(--bg-card); padding: 20px 24px; border-radius: 12px; margin: 24px 0; display: none; }
+  .score-banner.show { display: block; }
+  .score-banner .lbl { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.6; margin-bottom: 6px; }
+  .score-banner .val { font-family: var(--serif); font-size: 38px; }
+  .score-banner .msg { font-size: 14px; opacity: 0.85; margin-top: 8px; }
+
+  /* ============ SVG specifics ============ */
+  .selectable { cursor: pointer; }
+  .faded { opacity: 0.18; transition: opacity 0.3s; }
+  .full { opacity: 1; transition: opacity 0.3s; }
+
+  /* ============ Footer ============ */
+  footer.site { margin-top: 64px; padding: 28px 0; border-top: 1px solid var(--rule); text-align: center; font-size: 12px; color: var(--ink-mute); }
+
+  /* ============ Celebration overlay ============ */
+  .celebrate-overlay {
+    position: fixed; inset: 0; z-index: 1000;
+    display: none; align-items: center; justify-content: center;
+    background: linear-gradient(180deg, #fff8e7 0%, #ffe4ec 50%, #e0e7ff 100%);
+    overflow: hidden;
+  }
+  .celebrate-overlay.show { display: flex; }
+  .celebrate-overlay::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(ellipse at 20% 30%, rgba(251,191,36,0.18), transparent 40%),
+      radial-gradient(ellipse at 80% 70%, rgba(225,29,72,0.14), transparent 40%),
+      radial-gradient(ellipse at 50% 90%, rgba(139,92,246,0.10), transparent 40%);
+    pointer-events: none;
+  }
+  /* watercolor banner */
+  .celebrate-banner {
+    position: absolute; top: 8%; left: 50%; transform: translateX(-50%);
+    text-align: center; z-index: 2;
+    width: min(560px, 88%);
+  }
+  .celebrate-banner svg.banner-bg { width: 100%; height: auto; display: block; filter: drop-shadow(0 8px 24px rgba(15,23,42,0.10)); }
+  .celebrate-banner .banner-text {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif); font-size: clamp(28px, 5.5vw, 48px); letter-spacing: 0.02em;
+    color: #7c2d12;
+    text-shadow: 0 2px 0 rgba(255,255,255,0.5);
+    transform: rotate(-2deg);
+  }
+  /* star container */
+  .celebrate-star-wrap {
+    position: relative; z-index: 3;
+    width: min(520px, 90%); aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #celebrate-star { width: 100%; height: 100%; transform-origin: 50% 50%; }
+  /* Phase 1: stretch & contract */
+  #celebrate-star.squish .star-shape { animation: squish 1.2s ease-in-out forwards; transform-origin: 50% 50%; transform-box: fill-box; }
+  @keyframes squish {
+    0%   { transform: scale(1, 1); }
+    25%  { transform: scale(1.25, 0.78); }
+    50%  { transform: scale(0.85, 1.20); }
+    75%  { transform: scale(1.10, 0.92); }
+    100% { transform: scale(1, 1); }
+  }
+  /* Phase 2: spin with increasing speed */
+  #celebrate-star.spin .star-shape { animation: spinAccel 1.8s cubic-bezier(0.4, 0, 1, 1) forwards; transform-origin: 50% 50%; transform-box: fill-box; }
+  @keyframes spinAccel {
+    0%   { transform: rotate(0deg); }
+    20%  { transform: rotate(60deg); }
+    50%  { transform: rotate(360deg); }
+    75%  { transform: rotate(900deg); }
+    100% { transform: rotate(1800deg); }
+  }
+  /* Phase 3: explode */
+  #celebrate-star.explode .star-shape { animation: explodeOut 0.4s ease-out forwards; transform-origin: 50% 50%; transform-box: fill-box; }
+  @keyframes explodeOut {
+    0%   { transform: scale(1) rotate(1800deg); opacity: 1; }
+    50%  { transform: scale(2.4) rotate(1900deg); opacity: 0.6; }
+    100% { transform: scale(4) rotate(2000deg); opacity: 0; }
+  }
+  /* confetti canvas */
+  #celebrate-confetti {
+    position: absolute; inset: 0; z-index: 4;
+    pointer-events: none;
+    opacity: 0; transition: opacity 0.3s;
+  }
+  /* restart button */
+  #celebrate-restart {
+    position: absolute; bottom: 8%; left: 50%; transform: translateX(-50%);
+    z-index: 5;
+    padding: 14px 36px; font-size: 16px; font-family: var(--sans); font-weight: 600;
+    background: var(--ink); color: white; border: 2px solid var(--ink);
+    border-radius: 999px; cursor: pointer;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.6s ease, transform 0.2s ease;
+    box-shadow: 0 8px 24px rgba(15,23,42,0.16);
+    letter-spacing: 0.02em;
+  }
+  #celebrate-restart.show { opacity: 1; pointer-events: auto; }
+  #celebrate-restart:hover { transform: translateX(-50%) translateY(-2px); background: var(--accent); border-color: var(--accent); }
+
+  /* sr only */
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="inner">
+    <div class="brand">Rotations <em>about the origin</em></div>
+    <div class="crumbs">
+      <span class="active">An interactive lesson</span> · <span>90° &amp; 180°</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="eyebrow">Geometry · Rigid Motions</div>
+    <h1>A turn, perfectly <em>balanced</em> around a single point.</h1>
+    <p class="lede">A rotation moves every point of a figure around a fixed center by a chosen angle. In this lesson the center is always the origin, and you'll explore what 90° and 180° rotations actually do — first to a single point, then to a whole figure, then on paper, then in your head.</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <a class="toc-item" href="#define">
+      <div class="num">i.</div><div class="nm">What is a rotation?</div>
+      <div class="ds">Three things define every rotation: center, angle, direction.</div>
+    </a>
+    <a class="toc-item" href="#point-sandbox">
+      <div class="num">ii.</div><div class="nm">Rotate a point</div>
+      <div class="ds">Drag, spin, watch the arc. Discover the rules yourself.</div>
+    </a>
+    <a class="toc-item" href="#rules">
+      <div class="num">iii.</div><div class="nm">The rules, revealed</div>
+      <div class="ds">90° CCW, 90° CW, and 180° — written algebraically.</div>
+    </a>
+    <a class="toc-item" href="#figure-sandbox">
+      <div class="num">iv.</div><div class="nm">Rotate a figure</div>
+      <div class="ds">Build a triangle or quadrilateral. Spin one vertex or all.</div>
+    </a>
+    <a class="toc-item" href="#paper">
+      <div class="num">v.</div><div class="nm">Doing it on paper</div>
+      <div class="ds">Three methods: coordinate rule, visual count, tracing paper.</div>
+    </a>
+    <a class="toc-item" href="#practice">
+      <div class="num">vi.</div><div class="nm">Practice</div>
+      <div class="ds">Formative problems with reveal-when-ready answers.</div>
+    </a>
+    <a class="toc-item" href="#assessment">
+      <div class="num">vii.</div><div class="nm">Check your understanding</div>
+      <div class="ds">A short summative quiz to bring it together.</div>
+    </a>
+    <a class="toc-item" href="#summary">
+      <div class="num">viii.</div><div class="nm">Summary</div>
+      <div class="ds">Definition + rules, all in one place.</div>
+    </a>
+  </div>
+
+  <!-- ============ SECTION 1: DEFINITION ============ -->
+  <section id="define">
+    <div class="sec-head">
+      <div class="num">§ i</div>
+      <h2>What is a <em>rotation</em>?</h2>
+    </div>
+    <p class="sec-intro">A <strong>rotation</strong> is a rigid motion that turns every point of a figure around a fixed point called the <strong>center of rotation</strong>. Distance from the center is preserved — meaning a point that started 5 units from the center is still 5 units from the center after the rotation. The figure itself doesn't change size or shape; it just faces a new direction.</p>
+
+    <div class="card">
+      <div class="card-label">Three things define every rotation</div>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 8px;">
+        <div>
+          <div style="font-family: var(--serif); font-size: 18px; margin-bottom: 6px;">1. Center</div>
+          <div style="font-size: 13px; color: var(--ink-soft); line-height: 1.5;">The fixed point everything turns around. In this lesson, always the <strong>origin</strong> (0, 0).</div>
+        </div>
+        <div>
+          <div style="font-family: var(--serif); font-size: 18px; margin-bottom: 6px;">2. Angle</div>
+          <div style="font-size: 13px; color: var(--ink-soft); line-height: 1.5;">How far to turn. We'll focus on <strong>90°</strong> (a quarter turn) and <strong>180°</strong> (a half turn).</div>
+        </div>
+        <div>
+          <div style="font-family: var(--serif); font-size: 18px; margin-bottom: 6px;">3. Direction</div>
+          <div style="font-size: 13px; color: var(--ink-soft); line-height: 1.5;"><strong>Counterclockwise (CCW)</strong> is positive — the standard mathematical direction. Clockwise (CW) is the reverse.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip"><strong>Heads-up on 180°:</strong> a half-turn looks the same whether you go clockwise or counterclockwise — you end up in the exact same place. Direction only matters for 90°.</div>
+  </section>
+
+  <!-- ============ SECTION 2: POINT SANDBOX ============ -->
+  <section id="point-sandbox">
+    <div class="sec-head">
+      <div class="num">§ ii</div>
+      <h2>Rotate a single <em>point</em></h2>
+    </div>
+    <p class="sec-intro">Start small. Below is a single point on the coordinate plane. Drag it anywhere you like, choose an angle and direction, and press <strong>Rotate</strong> to watch it sweep through the rotation. The arc traces its path; the angle marker shows how far it's turning. <strong>Tip:</strong> use the speed slider to slow things down — you can pause mid-rotation to see exactly where the point is at any moment.</p>
+
+    <div class="sandbox">
+      <div class="sandbox-canvas">
+        <svg id="point-canvas" viewBox="-12 -12 24 24" style="width: 100%; aspect-ratio: 1; display: block;" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="grid-minor-1" width="1" height="1" patternUnits="userSpaceOnUse">
+              <path d="M 1 0 L 0 0 0 1" fill="none" stroke="rgba(127,127,127,0.18)" stroke-width="0.04"/>
+            </pattern>
+          </defs>
+          <rect x="-12" y="-12" width="24" height="24" fill="url(#grid-minor-1)"/>
+          <line x1="-12" y1="0" x2="12" y2="0" stroke="rgba(15,23,42,0.5)" stroke-width="0.06"/>
+          <line x1="0" y1="-12" x2="0" y2="12" stroke="rgba(15,23,42,0.5)" stroke-width="0.06"/>
+          <!-- axis ticks -->
+          <g id="ticks-1"></g>
+          <!-- origin label -->
+          <circle cx="0" cy="0" r="0.18" fill="var(--ink)"/>
+          <text x="0.4" y="0.9" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="0.7" fill="var(--ink-mute)">O</text>
+
+          <!-- arc + angle marker (drawn during rotation) -->
+          <path id="point-arc" d="" fill="none" stroke="var(--arc)" stroke-width="0.1" stroke-dasharray="0.3 0.2" opacity="0.85"/>
+          <text id="point-angle-label" x="0" y="0" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="0.7" fill="var(--arc)" text-anchor="middle" opacity="0"></text>
+
+          <!-- radii (faint lines from origin) -->
+          <line id="point-radius-pre" x1="0" y1="0" x2="0" y2="0" stroke="var(--pre)" stroke-width="0.05" stroke-dasharray="0.2 0.2" opacity="0.5"/>
+          <line id="point-radius-img" x1="0" y1="0" x2="0" y2="0" stroke="var(--img)" stroke-width="0.05" stroke-dasharray="0.2 0.2" opacity="0"/>
+
+          <!-- pre-image point -->
+          <g id="point-pre">
+            <circle cx="3" cy="2" r="0.32" fill="var(--pre)" class="selectable"/>
+            <text x="3" y="2" dx="0.5" dy="-0.4" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="0.8" fill="var(--pre)" font-weight="600">P</text>
+          </g>
+
+          <!-- moving point (during animation) -->
+          <g id="point-moving" opacity="0">
+            <circle cx="0" cy="0" r="0.32" fill="var(--accent)"/>
+          </g>
+
+          <!-- image point (final position) -->
+          <g id="point-img" opacity="0">
+            <circle cx="0" cy="0" r="0.32" fill="var(--img)"/>
+            <text x="0" y="0" dx="0.5" dy="-0.4" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="0.8" fill="var(--img)" font-weight="600">P′</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="sandbox-controls">
+        <div class="control-group">
+          <label class="control-label">Angle &amp; Direction</label>
+          <div class="seg" id="point-angle-seg">
+            <button data-angle="90" data-dir="ccw" class="active">90° CCW</button>
+            <button data-angle="90" data-dir="cw">90° CW</button>
+            <button data-angle="180" data-dir="ccw">180°</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">Rotation <span style="opacity:0.6">— drag to scrub, or press Animate</span></label>
+          <div class="slider-wrap">
+            <input type="range" id="point-speed" min="0" max="100" value="0" />
+            <div class="slider-val" id="point-speed-val">0°</div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">Coordinates</label>
+          <table class="coord-table">
+            <tr><th>Pre-image</th><th>Image</th></tr>
+            <tr><td id="pt-pre-coord">P(3, 2)</td><td id="pt-img-coord">P′(—, —)</td></tr>
+          </table>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn primary" id="point-rotate-btn">Animate</button>
+          <button class="btn" id="point-pause-btn" disabled>Pause</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn ghost" id="point-reset-btn">Reset</button>
+          <button class="btn ghost" id="point-refresh-btn">New point</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip"><strong>Try this:</strong> place the point at (4, 1). Predict where it'll land after 90° CCW <em>before</em> you press Rotate. Then test it. Try a few more positions. What pattern do you notice in the new coordinates?</div>
+  </section>
+
+  <!-- ============ FORMATIVE CHECKPOINT A ============ -->
+  <section id="checkpoint-a">
+    <div class="sec-head">
+      <div class="num">§ ii.5</div>
+      <h2>Checkpoint <em>A</em></h2>
+    </div>
+    <p class="sec-intro">Before we name the rules, see what you've discovered. Try each question — the sandbox above is still there if you need to test something. Press <strong>New questions</strong> any time for fresh problems.</p>
+
+    <div id="checkpoint-a-slots"></div>
+
+    <div class="btn-row" style="max-width: 200px; margin-top: 12px;">
+      <button class="btn" id="checkpoint-a-refresh">↻ New questions</button>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 3: THE RULES ============ -->
+  <section id="rules">
+    <div class="sec-head">
+      <div class="num">§ iii</div>
+      <h2>The rules, <em>revealed</em></h2>
+    </div>
+    <p class="sec-intro">Here's what's actually happening, written algebraically. Notice the pattern: 180° flips both signs; 90° rotations swap x and y, and which one becomes negative depends on the direction.</p>
+
+    <div class="rules-grid">
+      <div class="rule-card">
+        <div class="rname">90° CCW</div>
+        <div class="rsub">counterclockwise</div>
+        <svg class="rule-graph" viewBox="-5.5 -5.5 11 11" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="rg-grid-1" width="1" height="1" patternUnits="userSpaceOnUse">
+              <path d="M 1 0 L 0 0 0 1" fill="none" stroke="rgba(15,23,42,0.10)" stroke-width="0.04"/>
+            </pattern>
+          </defs>
+          <rect x="-5.5" y="-5.5" width="11" height="11" fill="url(#rg-grid-1)"/>
+          <line x1="-5.5" y1="0" x2="5.5" y2="0" stroke="rgba(15,23,42,0.5)" stroke-width="0.06"/>
+          <line x1="0" y1="-5.5" x2="0" y2="5.5" stroke="rgba(15,23,42,0.5)" stroke-width="0.06"/>
+          <!-- arc from (3,2) CCW 90° to (-2,3) -->
+          <path d="M 3 -2 A 3.606 3.606 0 0 0 -2 -3" fill="none" stroke="var(--arc)" stroke-width="0.1" stroke-dasharray="0.3 0.2"/>
+          <!-- angle label outside the arc -->
+          <text x="0" y="-4.6" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="0.7" fill="var(--arc)" text-anchor="middle">90°</text>
+          <!-- radii -->
+          <line x1="0" y1="0" x2="3" y2="-2" stroke="var(--pre)" stroke-width="0.05" stroke-dasharray="0.2 0.2" opacity="0.5"/>
+          <line x1="0" y1="0" x2="-2" y2="-3" stroke="var(--img)" stroke-width="0.05" stroke-dasharray="0.2 0.2" opacity="0.6"/>
+          <!-- pre-image -->
+          <circle cx="3" cy="-2" r="0.28" fill="var(--pre)"/>
+          <text x="3" y="-2" dx="0.4" dy="-0.4" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="0.7" fill="var(--pre)" font-weight="600">P</text>
+          <!-- image -->
+          <circle cx="-2" cy="-3" r="0.28" fill="var(--img)"/>
+          <text x="-2" y="-3" dx="0.4" dy="-0.4" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="0.7" fill="var(--img)" font-weight="600">P′</text>
+          <!-- origin -->
+          <circle cx="0" cy="0" r="0.16" fill="var(--ink)"/>
+        </svg>
+        <div class="rfm">(x, y) → (−y, x)</div>
+        <div class="rex">(3, 2) → (−2, 3)</div>
+      </div>
+      <div class="rule-card">
+        <div class="rname">180°</div>
+        <div class="rsub">half turn (either direction)</div>
+        <svg class="rule-graph" viewBox="-5.5 -5.5 11 11" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="rg-grid-2" width="1" height="1" patternUnits="userSpaceOnUse">
+              <path d="M 1 0 L 0 0 0 1" fill="none" stroke="rgba(15,23,42,0.10)" stroke-width="0.04"/>
+            </pattern>
+          </defs>
+          <rect x="-5.5" y="-5.5" width="11" height="11" fill="url(#rg-grid-2)"/>
+          <line x1="-5.5" y1="0" x2="5.5" y2="0" stroke="rgba(15,23,42,0.5)" stroke-width="0.06"/>
+          <line x1="0" y1="-5.5" x2="0" y2="5.5" stroke="rgba(15,23,42,0.5)" stroke-width="0.06"/>
+          <!-- arc from (3,2) CCW 180° to (-3,-2). Travels through (-2,3) area -->
+          <path d="M 3 -2 A 3.606 3.606 0 0 0 -3 2" fill="none" stroke="var(--arc)" stroke-width="0.1" stroke-dasharray="0.3 0.2"/>
+          <text x="-4.6" y="0.3" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="0.7" fill="var(--arc)" text-anchor="middle">180°</text>
+          <line x1="0" y1="0" x2="3" y2="-2" stroke="var(--pre)" stroke-width="0.05" stroke-dasharray="0.2 0.2" opacity="0.5"/>
+          <line x1="0" y1="0" x2="-3" y2="2" stroke="var(--img)" stroke-width="0.05" stroke-dasharray="0.2 0.2" opacity="0.6"/>
+          <circle cx="3" cy="-2" r="0.28" fill="var(--pre)"/>
+          <text x="3" y="-2" dx="0.4" dy="-0.4" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="0.7" fill="var(--pre)" font-weight="600">P</text>
+          <circle cx="-3" cy="2" r="0.28" fill="var(--img)"/>
+          <text x="-3" y="2" dx="0.4" dy="-0.4" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="0.7" fill="var(--img)" font-weight="600">P′</text>
+          <circle cx="0" cy="0" r="0.16" fill="var(--ink)"/>
+        </svg>
+        <div class="rfm">(x, y) → (−x, −y)</div>
+        <div class="rex">(3, 2) → (−3, −2)</div>
+      </div>
+      <div class="rule-card">
+        <div class="rname">90° CW</div>
+        <div class="rsub">clockwise</div>
+        <svg class="rule-graph" viewBox="-5.5 -5.5 11 11" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="rg-grid-3" width="1" height="1" patternUnits="userSpaceOnUse">
+              <path d="M 1 0 L 0 0 0 1" fill="none" stroke="rgba(15,23,42,0.10)" stroke-width="0.04"/>
+            </pattern>
+          </defs>
+          <rect x="-5.5" y="-5.5" width="11" height="11" fill="url(#rg-grid-3)"/>
+          <line x1="-5.5" y1="0" x2="5.5" y2="0" stroke="rgba(15,23,42,0.5)" stroke-width="0.06"/>
+          <line x1="0" y1="-5.5" x2="0" y2="5.5" stroke="rgba(15,23,42,0.5)" stroke-width="0.06"/>
+          <!-- arc from (3,2) CW 90° to (2,-3). svg sweep flag = 1 for CW math (since y flipped) -->
+          <path d="M 3 -2 A 3.606 3.606 0 0 1 2 3" fill="none" stroke="var(--arc)" stroke-width="0.1" stroke-dasharray="0.3 0.2"/>
+          <text x="4.5" y="1.0" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="0.7" fill="var(--arc)" text-anchor="middle">90°</text>
+          <line x1="0" y1="0" x2="3" y2="-2" stroke="var(--pre)" stroke-width="0.05" stroke-dasharray="0.2 0.2" opacity="0.5"/>
+          <line x1="0" y1="0" x2="2" y2="3" stroke="var(--img)" stroke-width="0.05" stroke-dasharray="0.2 0.2" opacity="0.6"/>
+          <circle cx="3" cy="-2" r="0.28" fill="var(--pre)"/>
+          <text x="3" y="-2" dx="0.4" dy="-0.4" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="0.7" fill="var(--pre)" font-weight="600">P</text>
+          <circle cx="2" cy="3" r="0.28" fill="var(--img)"/>
+          <text x="2" y="3" dx="0.4" dy="-0.4" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="0.7" fill="var(--img)" font-weight="600">P′</text>
+          <circle cx="0" cy="0" r="0.16" fill="var(--ink)"/>
+        </svg>
+        <div class="rfm">(x, y) → (y, −x)</div>
+        <div class="rex">(3, 2) → (2, −3)</div>
+      </div>
+    </div>
+
+    <div class="tip"><strong>How to remember 90°:</strong> for both 90° rotations, the x and y <em>swap</em> — that part is the same. The only question is which one gets the negative sign. <strong>CCW puts the negative on the new x</strong> (originally y); <strong>CW puts the negative on the new y</strong> (originally x). Or memorize one and remember the other is its reverse.</div>
+
+    <div class="tip"><strong>Why does this work?</strong> A rotation about the origin keeps the distance from the origin the same. If you draw the radius from the origin to your point, the radius simply turns by the rotation angle. The coordinate rules above are what that turn looks like written in (x, y) form. You can verify this for yourself: the distance √(x² + y²) is the same before and after.</div>
+  </section>
+
+  <!-- ============ SECTION 4: FIGURE SANDBOX ============ -->
+  <section id="figure-sandbox">
+    <div class="sec-head">
+      <div class="num">§ iv</div>
+      <h2>Rotate a whole <em>figure</em></h2>
+    </div>
+    <p class="sec-intro">Now scale up. A figure is just a collection of points connected by edges — so rotating a figure is just rotating each of its vertices and reconnecting them. Drag any vertex to reshape the figure. Choose <strong>One vertex</strong> mode to isolate a single point's rotation (everything else fades), or <strong>Whole figure</strong> mode to rotate it all together. Try the same figure at 90° CCW and 180° — see how the shape stays exactly the same, just facing differently.</p>
+
+    <div class="sandbox">
+      <div class="sandbox-canvas">
+        <svg id="figure-canvas" viewBox="-12 -12 24 24" style="width: 100%; aspect-ratio: 1; display: block;" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="grid-minor-2" width="1" height="1" patternUnits="userSpaceOnUse">
+              <path d="M 1 0 L 0 0 0 1" fill="none" stroke="rgba(127,127,127,0.18)" stroke-width="0.04"/>
+            </pattern>
+          </defs>
+          <rect x="-12" y="-12" width="24" height="24" fill="url(#grid-minor-2)"/>
+          <line x1="-12" y1="0" x2="12" y2="0" stroke="rgba(15,23,42,0.5)" stroke-width="0.06"/>
+          <line x1="0" y1="-12" x2="0" y2="12" stroke="rgba(15,23,42,0.5)" stroke-width="0.06"/>
+          <g id="ticks-2"></g>
+          <circle cx="0" cy="0" r="0.18" fill="var(--ink)"/>
+          <text x="0.4" y="0.9" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="0.7" fill="var(--ink-mute)">O</text>
+
+          <!-- arcs and angle labels (multiple) -->
+          <g id="figure-arcs"></g>
+
+          <!-- pre-image figure (filled polygon + vertices) -->
+          <g id="figure-pre"></g>
+
+          <!-- moving figure -->
+          <g id="figure-moving" opacity="0"></g>
+
+          <!-- image figure -->
+          <g id="figure-img" opacity="0"></g>
+        </svg>
+      </div>
+
+      <div class="sandbox-controls">
+        <div class="control-group">
+          <label class="control-label">Figure</label>
+          <div class="seg" id="figure-shape-seg">
+            <button data-shape="triangle" class="active">Triangle</button>
+            <button data-shape="quad">Quad</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">Mode</label>
+          <div class="seg" id="figure-mode-seg">
+            <button data-mode="all" class="active">Whole figure</button>
+            <button data-mode="one">One vertex</button>
+          </div>
+        </div>
+
+        <div class="control-group" id="vertex-picker-group" style="display: none;">
+          <label class="control-label">Pick vertex</label>
+          <div class="seg" id="vertex-picker"></div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">Rotation</label>
+          <div class="seg" id="figure-angle-seg">
+            <button data-angle="90" data-dir="ccw" class="active">90° CCW</button>
+            <button data-angle="90" data-dir="cw">90° CW</button>
+            <button data-angle="180" data-dir="ccw">180°</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">Rotation <span style="opacity:0.6">— drag to scrub, or press Animate</span></label>
+          <div class="slider-wrap">
+            <input type="range" id="figure-speed" min="0" max="100" value="0" />
+            <div class="slider-val" id="figure-speed-val">0°</div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">Coordinates</label>
+          <table class="coord-table" id="figure-coord-table">
+            <tr><th>Pre-image</th><th>Image</th></tr>
+          </table>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn primary" id="figure-rotate-btn">Animate</button>
+          <button class="btn" id="figure-pause-btn" disabled>Pause</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn ghost" id="figure-reset-btn">Reset</button>
+          <button class="btn ghost" id="figure-refresh-btn">New figure</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip"><strong>Why does this work?</strong> A rotation is a rigid motion — it preserves distance. So every point of the figure moves the same angular amount around the origin, and their relationships to each other stay identical. The figure is congruent to its image.</div>
+  </section>
+
+  <!-- ============ SECTION 5: PAPER METHOD ============ -->
+  <section id="paper">
+    <div class="sec-head">
+      <div class="num">§ v</div>
+      <h2>How to do this <em>on paper</em></h2>
+    </div>
+    <p class="sec-intro">Three ways to perform a rotation by hand. Pick whichever feels most natural — most students end up using a combination, depending on the problem.</p>
+
+    <div class="card">
+      <div class="card-label">Method 1 — Coordinate Rule (fastest)</div>
+      <div class="paper-steps">
+        <div class="paper-step">
+          <div class="stepnum">1</div>
+          <div class="steptxt"><strong>Write down each vertex's coordinates.</strong> If your triangle has vertices A(2, 5), B(4, 1), and C(−1, 3), list them clearly.</div>
+        </div>
+        <div class="paper-step">
+          <div class="stepnum">2</div>
+          <div class="steptxt"><strong>Apply the rule</strong> for the rotation you want:<br>
+          • 90° CCW: <code>(x, y) → (−y, x)</code><br>
+          • 90° CW: <code>(x, y) → (y, −x)</code><br>
+          • 180°: <code>(x, y) → (−x, −y)</code></div>
+        </div>
+        <div class="paper-step">
+          <div class="stepnum">3</div>
+          <div class="steptxt"><strong>Plot the new points</strong> on the same coordinate plane and connect them in the same order as the original. <em>Example:</em> A(2, 5) under 90° CCW becomes A′(−5, 2).</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Method 2 — Visual Count from Origin</div>
+      <div class="paper-steps">
+        <div class="paper-step">
+          <div class="stepnum">1</div>
+          <div class="steptxt"><strong>For each vertex, count how many units right/left and up/down it is from the origin.</strong> A point at (3, 2) is 3 right and 2 up.</div>
+        </div>
+        <div class="paper-step">
+          <div class="stepnum">2</div>
+          <div class="steptxt"><strong>Now imagine rotating those directions</strong> by your angle. A 90° CCW turn changes "right" into "up", "up" into "left", "left" into "down", "down" into "right". So 3 right + 2 up becomes <em>3 up + 2 left</em>, landing at (−2, 3).</div>
+        </div>
+        <div class="paper-step">
+          <div class="stepnum">3</div>
+          <div class="steptxt"><strong>Plot the new vertex.</strong> Repeat for every vertex of the figure, then connect them.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Method 3 — Tracing Paper</div>
+      <div class="paper-steps">
+        <div class="paper-step">
+          <div class="stepnum">1</div>
+          <div class="steptxt"><strong>Place tracing paper over your coordinate grid.</strong> Trace both the figure and a small "+" mark at the origin.</div>
+        </div>
+        <div class="paper-step">
+          <div class="stepnum">2</div>
+          <div class="steptxt"><strong>Hold the tracing paper down at the origin</strong> with your pencil tip. Rotate the tracing paper itself — 90° (a quarter turn) or 180° (a half turn) — in the correct direction (CCW means the top of the page swings to your left).</div>
+        </div>
+        <div class="paper-step">
+          <div class="stepnum">3</div>
+          <div class="steptxt"><strong>Press hard at each vertex to mark its new location</strong> on the original paper underneath. Lift the tracing paper and connect the new dots.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip"><strong>Don't have tracing paper handy?</strong> Use any thin paper (notebook paper held up to a window works), or skip this method — Methods 1 and 2 are enough on their own. Method 3 is most useful when you want to <em>see</em> the rotation happen physically.</div>
+  </section>
+
+  <!-- ============ SECTION 6: PRACTICE ============ -->
+  <section id="practice">
+    <div class="sec-head">
+      <div class="num">§ vi</div>
+      <h2><em>Practice</em></h2>
+    </div>
+    <p class="sec-intro">Work each problem on your own first. Use scratch paper, the sandboxes above, or just your head. When you're ready to check, click <strong>Reveal answer</strong>.</p>
+
+    <div class="card">
+      <div class="card-label">Problem 1</div>
+      <div style="font-size: 15px; margin-bottom: 6px;">Point Q is located at (−3, 7). What are the coordinates of Q′ after a 90° CCW rotation about the origin?</div>
+      <div class="reveal">
+        <button class="reveal-btn">Reveal answer</button>
+        <div class="reveal-content">
+          <strong>Q′ = (−7, −3)</strong><br>
+          Apply <code>(x, y) → (−y, x)</code>. So (−3, 7) becomes (−(7), −3) = (−7, −3).
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Problem 2</div>
+      <div style="font-size: 15px; margin-bottom: 6px;">Triangle ABC has vertices A(1, 2), B(4, 2), and C(4, 6). It is rotated 180° about the origin. Find the coordinates of A′, B′, and C′.</div>
+      <div class="reveal">
+        <button class="reveal-btn">Reveal answer</button>
+        <div class="reveal-content">
+          <strong>A′(−1, −2), B′(−4, −2), C′(−4, −6)</strong><br>
+          Apply <code>(x, y) → (−x, −y)</code> to each vertex — flip both signs.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Problem 3</div>
+      <div style="font-size: 15px; margin-bottom: 6px;">A point at (6, 0) is rotated about the origin. Its image lands at (0, −6). Which rotation was applied?</div>
+      <div class="reveal">
+        <button class="reveal-btn">Reveal answer</button>
+        <div class="reveal-content">
+          <strong>90° clockwise</strong><br>
+          Apply <code>(x, y) → (y, −x)</code>: (6, 0) becomes (0, −6). ✓<br>
+          Sanity check: 90° CCW would have sent (6, 0) to (0, 6), and 180° would have sent it to (−6, 0).
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Problem 4</div>
+      <div style="font-size: 15px; margin-bottom: 6px;">Point R is at (−2, −5). After a 90° CW rotation about the origin, where is R′?</div>
+      <div class="reveal">
+        <button class="reveal-btn">Reveal answer</button>
+        <div class="reveal-content">
+          <strong>R′ = (−5, 2)</strong><br>
+          Apply <code>(x, y) → (y, −x)</code>: (−2, −5) becomes (−5, −(−2)) = (−5, 2).
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Problem 5 — Challenge</div>
+      <div style="font-size: 15px; margin-bottom: 6px;">A figure is rotated 90° CCW, and then its image is rotated another 90° CCW. What single rotation has the same effect as those two combined?</div>
+      <div class="reveal">
+        <button class="reveal-btn">Reveal answer</button>
+        <div class="reveal-content">
+          <strong>180° about the origin.</strong><br>
+          Two consecutive quarter-turns in the same direction = a half-turn. You can verify with coordinates: (x, y) → (−y, x) → (−x, −y), which is exactly the 180° rule.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 7: ASSESSMENT ============ -->
+  <section id="assessment">
+    <div class="sec-head">
+      <div class="num">§ vii</div>
+      <h2>Check your <em>understanding</em></h2>
+    </div>
+    <p class="sec-intro">Six questions to bring it together. You'll get immediate feedback on each. Take your time — the goal is understanding, not speed. Press <strong>New questions</strong> for a fresh set anytime.</p>
+
+    <div id="assessment-slots"></div>
+
+    <div class="btn-row" style="max-width: 420px; margin-top: 20px;">
+      <button class="btn primary" id="submit-quiz">Submit quiz</button>
+      <button class="btn" id="assessment-refresh">↻ New questions</button>
+      <button class="btn ghost" id="reset-quiz">Reset</button>
+    </div>
+
+    <div class="score-banner" id="score-banner">
+      <div class="lbl">Your score</div>
+      <div class="val" id="score-val">— / 6</div>
+      <div class="msg" id="score-msg"></div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 8: SUMMARY ============ -->
+  <section id="summary">
+    <div class="sec-head">
+      <div class="num">§ viii</div>
+      <h2><em>Summary</em></h2>
+    </div>
+
+    <div class="card elevated">
+      <div class="card-label">Definition</div>
+      <div style="font-size: 16px; color: var(--ink); line-height: 1.65;">A <strong>rotation</strong> is a rigid motion that turns every point of a figure around a fixed center by a specified angle and direction. Distance from the center is preserved, so the original figure and its image are always <strong>congruent</strong>. In this lesson the center is always the <strong>origin</strong>.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">The three rules — at a glance</div>
+      <div class="rules-grid">
+        <div class="rule-card">
+          <div class="rname">90° CCW</div>
+          <div class="rfm">(x, y) → (−y, x)</div>
+        </div>
+        <div class="rule-card">
+          <div class="rname">180°</div>
+          <div class="rfm">(x, y) → (−x, −y)</div>
+        </div>
+        <div class="rule-card">
+          <div class="rname">90° CW</div>
+          <div class="rfm">(x, y) → (y, −x)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Big takeaways</div>
+      <ul style="font-size: 14.5px; color: var(--ink-soft); line-height: 1.7; padding-left: 22px; margin-top: 6px;">
+        <li>Every rotation is defined by three things: a <strong>center</strong>, an <strong>angle</strong>, and a <strong>direction</strong>.</li>
+        <li>180° looks the same in either direction. 90° doesn't.</li>
+        <li>A rotation preserves <strong>distance</strong>, <strong>angles</strong>, and <strong>shape</strong> — only orientation changes.</li>
+        <li>The figure and its image are always <strong>congruent</strong>.</li>
+        <li>To rotate by hand: apply the coordinate rule to every vertex, then plot.</li>
+      </ul>
+    </div>
+  </section>
+
+</div>
+
+<footer class="site">An interactive lesson · designed for discovery</footer>
+
+<!-- ============ CELEBRATION OVERLAY (perfect score) ============ -->
+<div class="celebrate-overlay" id="celebrate-overlay" aria-hidden="true">
+  <!-- Watercolor banner -->
+  <div class="celebrate-banner">
+    <svg class="banner-bg" viewBox="0 0 600 180" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Watercolor gradient -->
+        <linearGradient id="wc-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"  stop-color="#fef3c7"/>
+          <stop offset="35%" stop-color="#fde68a"/>
+          <stop offset="65%" stop-color="#fbbf24"/>
+          <stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+        <!-- Watercolor edge filter -->
+        <filter id="wc-edge" x="-10%" y="-10%" width="120%" height="120%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="3"/>
+          <feDisplacementMap in="SourceGraphic" scale="6"/>
+        </filter>
+        <!-- Inner texture -->
+        <filter id="wc-tex" x="0%" y="0%" width="100%" height="100%">
+          <feTurbulence type="turbulence" baseFrequency="0.04" numOctaves="3" seed="5"/>
+          <feColorMatrix values="0 0 0 0 0.55  0 0 0 0 0.18  0 0 0 0 0.07  0 0 0 0.18 0"/>
+          <feComposite in2="SourceGraphic" operator="in"/>
+        </filter>
+      </defs>
+      <!-- Banner shape with watercolor edges -->
+      <g filter="url(#wc-edge)">
+        <path d="M 30,40
+                 Q 80,18 160,28
+                 Q 280,12 380,30
+                 Q 490,18 570,40
+                 Q 580,90 565,140
+                 Q 470,160 360,150
+                 Q 240,168 140,148
+                 Q 50,162 35,140
+                 Q 18,90 30,40 Z"
+              fill="url(#wc-grad)" stroke="#7c2d12" stroke-width="2.5" stroke-opacity="0.55"/>
+      </g>
+      <!-- Inner texture overlay -->
+      <g filter="url(#wc-edge)" opacity="0.5">
+        <path d="M 50,50 Q 200,38 380,52 Q 510,40 555,55 Q 565,100 550,135 Q 380,148 230,140 Q 80,150 45,130 Q 35,90 50,50 Z"
+              fill="none" stroke="#92400e" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 8"/>
+      </g>
+      <!-- Painterly splotches -->
+      <g opacity="0.35">
+        <circle cx="80" cy="60" r="14" fill="#fbbf24" filter="url(#wc-edge)"/>
+        <circle cx="520" cy="120" r="18" fill="#f97316" filter="url(#wc-edge)"/>
+        <circle cx="300" cy="50" r="10" fill="#fde68a" filter="url(#wc-edge)"/>
+        <circle cx="180" cy="130" r="12" fill="#fbbf24" filter="url(#wc-edge)"/>
+      </g>
+    </svg>
+    <div class="banner-text">PERFECT SCORE!</div>
+  </div>
+
+  <!-- Mario-World-style gold star on a coordinate plane -->
+  <div class="celebrate-star-wrap">
+    <svg id="celebrate-star" viewBox="-12 -12 24 24" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="star-grid" width="2" height="2" patternUnits="userSpaceOnUse">
+          <path d="M 2 0 L 0 0 0 2" fill="none" stroke="rgba(15,23,42,0.10)" stroke-width="0.06"/>
+        </pattern>
+        <radialGradient id="star-grad" cx="35%" cy="30%" r="70%">
+          <stop offset="0%"  stop-color="#fffbeb"/>
+          <stop offset="35%" stop-color="#fde047"/>
+          <stop offset="75%" stop-color="#f59e0b"/>
+          <stop offset="100%" stop-color="#b45309"/>
+        </radialGradient>
+        <radialGradient id="star-eye" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#fef3c7"/>
+        </radialGradient>
+      </defs>
+      <!-- Background coordinate plane -->
+      <rect x="-12" y="-12" width="24" height="24" fill="url(#star-grid)" opacity="0.6"/>
+      <line x1="-12" y1="0" x2="12" y2="0" stroke="rgba(15,23,42,0.35)" stroke-width="0.08"/>
+      <line x1="0" y1="-12" x2="0" y2="12" stroke="rgba(15,23,42,0.35)" stroke-width="0.08"/>
+      <!-- origin marker -->
+      <circle cx="0" cy="0" r="0.22" fill="#0f172a"/>
+      <text x="0.5" y="-0.2" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="0.7" fill="rgba(15,23,42,0.6)">O</text>
+
+      <!-- Mario star (rotates and scales around origin) -->
+      <g class="star-shape">
+        <!-- five-pointed plump star — Mario style -->
+        <path d="M 0 -7
+                 C 1.2 -3.3, 2.1 -2.3, 6.66 -2.16
+                 C 3.05 0.3, 2.55 1.5, 4.12 5.66
+                 C 0.7 3.5, -0.7 3.5, -4.12 5.66
+                 C -2.55 1.5, -3.05 0.3, -6.66 -2.16
+                 C -2.1 -2.3, -1.2 -3.3, 0 -7 Z"
+              fill="url(#star-grad)"
+              stroke="#7c2d12" stroke-width="0.4" stroke-linejoin="round"/>
+        <!-- highlight -->
+        <path d="M -1.6 -4.5
+                 C -2.2 -3.8, -2.4 -3.0, -2.4 -2.3
+                 C -1.7 -2.2, -1.1 -2.4, -0.7 -3.0
+                 C -0.5 -3.6, -0.9 -4.2, -1.6 -4.5 Z"
+              fill="#fffbeb" opacity="0.7"/>
+        <!-- eyes -->
+        <ellipse cx="-1.3" cy="-0.6" rx="0.6" ry="0.85" fill="#0f172a"/>
+        <ellipse cx="1.3" cy="-0.6" rx="0.6" ry="0.85" fill="#0f172a"/>
+        <circle cx="-1.1" cy="-0.85" r="0.22" fill="white"/>
+        <circle cx="1.5" cy="-0.85" r="0.22" fill="white"/>
+        <!-- smile -->
+        <path d="M -1.1 0.6 Q 0 1.4, 1.1 0.6" fill="none" stroke="#0f172a" stroke-width="0.22" stroke-linecap="round"/>
+      </g>
+    </svg>
+  </div>
+
+  <canvas id="celebrate-confetti"></canvas>
+
+  <button id="celebrate-restart">Start over from the beginning</button>
+</div>
+
+<script>
+/* ==============================================================
+   Utility & shared
+   ============================================================== */
+const norm = (x, y) => Math.sqrt(x*x + y*y);
+const fmt = n => Number.isInteger(n) ? n.toString() : n.toFixed(1);
+
+// Convert speed slider (0-100) to duration in ms.
+// 0 = paused, 100 = fastest (300ms), 50 = mid (1100ms), 1 = slow (3500ms)
+function speedToDuration(s) {
+  if (s <= 0) return Infinity; // paused
+  // exponential mapping for nicer feel
+  const t = s / 100;
+  return 3500 - 3200 * t;
+}
+
+// Add tick marks to a coordinate plane group
+function drawTicks(groupId, range = 10) {
+  const g = document.getElementById(groupId);
+  if (!g) return;
+  for (let i = -range; i <= range; i++) {
+    if (i === 0) continue;
+    if (i % 2 !== 0) continue; // only every 2 to avoid clutter
+    // x-axis ticks
+    const tx = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    tx.setAttribute('x1', i); tx.setAttribute('y1', -0.15);
+    tx.setAttribute('x2', i); tx.setAttribute('y2', 0.15);
+    tx.setAttribute('stroke', 'rgba(15,23,42,0.4)');
+    tx.setAttribute('stroke-width', '0.05');
+    g.appendChild(tx);
+    // x-axis label
+    const lx = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    lx.setAttribute('x', i); lx.setAttribute('y', 0.85);
+    lx.setAttribute('font-family', 'ui-monospace, Menlo, Consolas, monospace');
+    lx.setAttribute('font-size', '0.55');
+    lx.setAttribute('fill', 'rgba(15,23,42,0.5)');
+    lx.setAttribute('text-anchor', 'middle');
+    lx.textContent = i;
+    g.appendChild(lx);
+    // y-axis ticks
+    const ty = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    ty.setAttribute('x1', -0.15); ty.setAttribute('y1', -i);
+    ty.setAttribute('x2', 0.15); ty.setAttribute('y2', -i);
+    ty.setAttribute('stroke', 'rgba(15,23,42,0.4)');
+    ty.setAttribute('stroke-width', '0.05');
+    g.appendChild(ty);
+    const ly = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    ly.setAttribute('x', -0.4); ly.setAttribute('y', -i);
+    ly.setAttribute('dy', '0.18');
+    ly.setAttribute('font-family', 'ui-monospace, Menlo, Consolas, monospace');
+    ly.setAttribute('font-size', '0.55');
+    ly.setAttribute('fill', 'rgba(15,23,42,0.5)');
+    ly.setAttribute('text-anchor', 'end');
+    ly.textContent = i;
+    g.appendChild(ly);
+  }
+}
+
+drawTicks('ticks-1');
+drawTicks('ticks-2');
+
+/* Apply a rotation in MATHEMATICAL coordinates.
+   In SVG, y is flipped. We always do math in (x, y) where +y = up.
+   The animation translates math (x, y) into SVG (x, -y) at draw time. */
+function rotateMath(x, y, angleDeg, dir) {
+  // dir: 'ccw' adds positive math angle; 'cw' subtracts.
+  // Math angle measured CCW from +x axis.
+  const sign = dir === 'ccw' ? 1 : -1;
+  const a = angleDeg * sign * Math.PI / 180;
+  // rotation matrix (CCW): x' = x cos - y sin; y' = x sin + y cos
+  const cs = Math.cos(a), sn = Math.sin(a);
+  return [x * cs - y * sn, x * sn + y * cs];
+}
+
+// Round near-zero to zero (for clean coordinate display)
+function clean(v) { return Math.abs(v) < 1e-9 ? 0 : v; }
+
+/* ==============================================================
+   POINT SANDBOX
+   ============================================================== */
+(function pointSandbox() {
+  const svg = document.getElementById('point-canvas');
+  const ptPre = document.getElementById('point-pre');
+  const ptCircle = ptPre.querySelector('circle');
+  const ptLabel = ptPre.querySelector('text');
+  const ptImg = document.getElementById('point-img');
+  const ptImgCircle = ptImg.querySelector('circle');
+  const ptImgLabel = ptImg.querySelector('text');
+  const radPre = document.getElementById('point-radius-pre');
+  const radImg = document.getElementById('point-radius-img');
+  const arc = document.getElementById('point-arc');
+  const angleLabel = document.getElementById('point-angle-label');
+  const preCoord = document.getElementById('pt-pre-coord');
+  const imgCoord = document.getElementById('pt-img-coord');
+  const angleSeg = document.getElementById('point-angle-seg');
+  const slider = document.getElementById('point-speed');
+  const sliderVal = document.getElementById('point-speed-val');
+  const rotateBtn = document.getElementById('point-rotate-btn');
+  const pauseBtn = document.getElementById('point-pause-btn');
+  const resetBtn = document.getElementById('point-reset-btn');
+  const refreshBtn = document.getElementById('point-refresh-btn');
+  const ptMoving = document.getElementById('point-moving');
+
+  // The moving point group is now redundant — slider-driven scrubbing renders directly into the image group.
+  ptMoving.setAttribute('opacity', '0');
+
+  let ptX = 3, ptY = 2;
+  let angle = 90, dir = 'ccw';
+  // Animation state for the auto-sweep "Animate" button
+  let anim = { running: false, paused: false, raf: null, lastT: 0 };
+
+  function renderAtFraction(t) {
+    // t in [0, 1] — fraction of the chosen rotation completed
+    const curAng = angle * t;
+    const [cx, cy] = rotateMath(ptX, ptY, curAng, dir);
+
+    // moving image position
+    ptImgCircle.setAttribute('cx', clean(cx));
+    ptImgCircle.setAttribute('cy', -clean(cy));
+    ptImgLabel.setAttribute('x', clean(cx));
+    ptImgLabel.setAttribute('y', -clean(cy));
+    radImg.setAttribute('x2', clean(cx));
+    radImg.setAttribute('y2', -clean(cy));
+
+    if (t > 0.001) {
+      ptImg.setAttribute('opacity', '1');
+      radImg.setAttribute('opacity', '0.6');
+      imgCoord.textContent = `P′(${fmt(clean(cx))}, ${fmt(clean(cy))})`;
+    } else {
+      ptImg.setAttribute('opacity', '0');
+      radImg.setAttribute('opacity', '0');
+      imgCoord.textContent = 'P′(—, —)';
+    }
+
+    // Arc + angle label
+    const r = norm(ptX, ptY);
+    if (r > 0.01 && t > 0.001) {
+      const startAngMath = Math.atan2(ptY, ptX);
+      const sweepSign = dir === 'ccw' ? 1 : -1;
+      const curAngRad = curAng * Math.PI / 180 * sweepSign;
+      const endAngMath = startAngMath + curAngRad;
+      const sx = r * Math.cos(startAngMath), sy = -r * Math.sin(startAngMath);
+      const ex = r * Math.cos(endAngMath), ey = -r * Math.sin(endAngMath);
+      const largeArc = Math.abs(curAng) > 180 ? 1 : 0;
+      const svgSweep = dir === 'ccw' ? 0 : 1;
+      arc.setAttribute('d', `M ${sx} ${sy} A ${r} ${r} 0 ${largeArc} ${svgSweep} ${ex} ${ey}`);
+      const midAngMath = startAngMath + curAngRad / 2;
+      const labR = r + 0.9;
+      angleLabel.setAttribute('x', labR * Math.cos(midAngMath));
+      angleLabel.setAttribute('y', -labR * Math.sin(midAngMath));
+      angleLabel.textContent = `${Math.round(curAng)}°`;
+      angleLabel.setAttribute('opacity', '1');
+    } else {
+      arc.setAttribute('d', '');
+      angleLabel.setAttribute('opacity', '0');
+    }
+
+    // Slider readout in degrees
+    sliderVal.textContent = `${Math.round(curAng)}°`;
+
+    // Fade pre-image while in mid-rotation
+    if (t > 0.05 && t < 0.99) {
+      ptPre.classList.add('faded');
+    } else {
+      ptPre.classList.remove('faded');
+    }
+  }
+
+  function setPoint(x, y) {
+    ptX = x; ptY = y;
+    ptCircle.setAttribute('cx', x);
+    ptCircle.setAttribute('cy', -y);
+    ptLabel.setAttribute('x', x);
+    ptLabel.setAttribute('y', -y);
+    radPre.setAttribute('x2', x);
+    radPre.setAttribute('y2', -y);
+    preCoord.textContent = `P(${fmt(x)}, ${fmt(y)})`;
+    slider.value = 0;
+    renderAtFraction(0);
+  }
+
+  setPoint(3, 2);
+
+  // Drag handling for the point itself
+  let dragging = false;
+  function svgPoint(evt) {
+    const pt = svg.createSVGPoint();
+    pt.x = evt.clientX; pt.y = evt.clientY;
+    const ctm = svg.getScreenCTM().inverse();
+    const sp = pt.matrixTransform(ctm);
+    return [Math.round(sp.x), Math.round(-sp.y)];
+  }
+  ptCircle.addEventListener('pointerdown', e => {
+    dragging = true; ptCircle.setPointerCapture(e.pointerId);
+    stopAnim();
+  });
+  ptCircle.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    let [x, y] = svgPoint(e);
+    x = Math.max(-10, Math.min(10, x));
+    y = Math.max(-10, Math.min(10, y));
+    setPoint(x, y);
+  });
+  ptCircle.addEventListener('pointerup', e => { dragging = false; ptCircle.releasePointerCapture(e.pointerId); });
+  ptCircle.addEventListener('pointercancel', () => { dragging = false; });
+
+  // Angle / direction selection — preserve current rotation fraction
+  angleSeg.addEventListener('click', e => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    angleSeg.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    angle = parseInt(btn.dataset.angle, 10);
+    dir = btn.dataset.dir;
+    const t = parseInt(slider.value, 10) / 100;
+    renderAtFraction(t);
+  });
+
+  // SLIDER: directly drives rotation (scrub mode)
+  slider.addEventListener('input', () => {
+    if (anim.running) stopAnim(); // user takes over
+    const t = parseInt(slider.value, 10) / 100;
+    renderAtFraction(t);
+  });
+
+  function stopAnim() {
+    if (anim.raf) cancelAnimationFrame(anim.raf);
+    anim.running = false;
+    anim.paused = false;
+    rotateBtn.textContent = 'Animate';
+    pauseBtn.disabled = true;
+    pauseBtn.textContent = 'Pause';
+  }
+
+  function startAnim() {
+    // Sweep the slider from current value to 100 over a fixed duration (1.6s for full sweep, scaled by remaining)
+    const startT = parseInt(slider.value, 10) / 100;
+    if (startT >= 0.999) {
+      // already at end — restart from 0
+      slider.value = 0;
+      renderAtFraction(0);
+    }
+    anim.running = true;
+    anim.paused = false;
+    rotateBtn.textContent = 'Restart';
+    pauseBtn.disabled = false;
+    pauseBtn.textContent = 'Pause';
+    let from = parseInt(slider.value, 10) / 100;
+    const FULL_DURATION = 1800; // ms for a 0→100 sweep
+    const remaining = (1 - from) * FULL_DURATION;
+    let startTime = performance.now();
+
+    function frame(now) {
+      if (!anim.running) return;
+      if (anim.paused) { anim.raf = requestAnimationFrame(frame); return; }
+      const elapsed = now - startTime;
+      let t = from + (elapsed / FULL_DURATION);
+      if (t >= 1) {
+        t = 1;
+        slider.value = 100;
+        renderAtFraction(1);
+        anim.running = false;
+        rotateBtn.textContent = 'Animate again';
+        pauseBtn.disabled = true;
+        return;
+      }
+      slider.value = Math.round(t * 100);
+      renderAtFraction(t);
+      anim.raf = requestAnimationFrame(frame);
+    }
+    anim.raf = requestAnimationFrame(frame);
+  }
+
+  rotateBtn.addEventListener('click', () => {
+    if (anim.running) {
+      // restart fresh
+      stopAnim();
+      slider.value = 0;
+      renderAtFraction(0);
+    }
+    startAnim();
+  });
+
+  pauseBtn.addEventListener('click', () => {
+    if (!anim.running) return;
+    anim.paused = !anim.paused;
+    pauseBtn.textContent = anim.paused ? 'Resume' : 'Pause';
+    if (!anim.paused) {
+      // recompute timing so we resume from current slider value
+      const from = parseInt(slider.value, 10) / 100;
+      // re-trigger startAnim semantics by faking the state
+      const FULL_DURATION = 1800;
+      const startTime = performance.now() - from * FULL_DURATION;
+      // simplest: re-call startAnim, which uses current slider value
+      stopAnim();
+      slider.value = Math.round(from * 100);
+      startAnim();
+    }
+  });
+
+  resetBtn.addEventListener('click', () => {
+    stopAnim();
+    setPoint(3, 2);
+  });
+
+  refreshBtn.addEventListener('click', () => {
+    stopAnim();
+    let x, y;
+    do {
+      x = Math.floor(Math.random() * 17) - 8;
+      y = Math.floor(Math.random() * 17) - 8;
+    } while ((x === 0 && y === 0) || (Math.abs(x) < 2 && Math.abs(y) < 2));
+    setPoint(x, y);
+  });
+})();
+
+/* ==============================================================
+   FIGURE SANDBOX
+   ============================================================== */
+(function figureSandbox() {
+  const svg = document.getElementById('figure-canvas');
+  const preGroup = document.getElementById('figure-pre');
+  const movingGroup = document.getElementById('figure-moving');
+  const imgGroup = document.getElementById('figure-img');
+  const arcsGroup = document.getElementById('figure-arcs');
+  const coordTable = document.getElementById('figure-coord-table');
+  const shapeSeg = document.getElementById('figure-shape-seg');
+  const modeSeg = document.getElementById('figure-mode-seg');
+  const vertexPickerGroup = document.getElementById('vertex-picker-group');
+  const vertexPicker = document.getElementById('vertex-picker');
+  const angleSeg = document.getElementById('figure-angle-seg');
+  const slider = document.getElementById('figure-speed');
+  const sliderVal = document.getElementById('figure-speed-val');
+  const rotateBtn = document.getElementById('figure-rotate-btn');
+  const pauseBtn = document.getElementById('figure-pause-btn');
+  const resetBtn = document.getElementById('figure-reset-btn');
+  const refreshBtn = document.getElementById('figure-refresh-btn');
+
+  // moving group is unused now (slider-scrub renders directly into image group)
+  movingGroup.setAttribute('opacity', '0');
+
+  const VERTEX_COLORS = ['#4338ca', '#059669', '#e11d48', '#d97706'];
+  const IMG_COLORS = ['#7c69ee', '#10b981', '#f43f5e', '#f59e0b'];
+
+  const SHAPES = {
+    triangle: [{x: 2, y: 1, name: 'A'}, {x: 6, y: 2, name: 'B'}, {x: 4, y: 5, name: 'C'}],
+    quad: [{x: 1, y: 1, name: 'A'}, {x: 5, y: 1, name: 'B'}, {x: 6, y: 4, name: 'C'}, {x: 2, y: 5, name: 'D'}]
+  };
+
+  let shape = 'triangle';
+  let mode = 'all';
+  let selectedVertex = 0;
+  let angle = 90, dir = 'ccw';
+  let vertices = JSON.parse(JSON.stringify(SHAPES.triangle));
+  let anim = { running: false, paused: false, raf: null };
+
+  function rebuildVertexPicker() {
+    vertexPicker.innerHTML = '';
+    vertices.forEach((v, i) => {
+      const b = document.createElement('button');
+      b.textContent = v.name;
+      b.dataset.idx = i;
+      if (i === selectedVertex) b.classList.add('active');
+      b.addEventListener('click', () => {
+        selectedVertex = i;
+        rebuildVertexPicker();
+        renderPreImage();
+        const t = parseInt(slider.value, 10) / 100;
+        renderAtFraction(t);
+      });
+      vertexPicker.appendChild(b);
+    });
+  }
+
+  function renderCoordTable(images) {
+    let html = '<tr><th>Pre-image</th><th>Image</th></tr>';
+    vertices.forEach((v, i) => {
+      const imgStr = images && images[i]
+        ? `${v.name}′(${fmt(clean(images[i].x))}, ${fmt(clean(images[i].y))})`
+        : `${v.name}′(—, —)`;
+      html += `<tr><td>${v.name}(${fmt(v.x)}, ${fmt(v.y)})</td><td>${imgStr}</td></tr>`;
+    });
+    coordTable.innerHTML = html;
+  }
+
+  function renderPreImage() {
+    preGroup.innerHTML = '';
+    const points = vertices.map(v => `${v.x},${-v.y}`).join(' ');
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    poly.setAttribute('points', points);
+    poly.setAttribute('fill', 'rgba(67,56,202,0.08)');
+    poly.setAttribute('stroke', 'var(--pre)');
+    poly.setAttribute('stroke-width', '0.12');
+    poly.setAttribute('stroke-linejoin', 'round');
+    preGroup.appendChild(poly);
+
+    vertices.forEach((v, i) => {
+      const isSelected = (mode === 'one' && i === selectedVertex);
+      const isUnselected = (mode === 'one' && i !== selectedVertex);
+
+      const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      c.setAttribute('cx', v.x);
+      c.setAttribute('cy', -v.y);
+      c.setAttribute('r', '0.32');
+      c.setAttribute('fill', VERTEX_COLORS[i]);
+      c.setAttribute('class', 'selectable');
+      c.dataset.idx = i;
+      if (isSelected) {
+        c.setAttribute('stroke', 'var(--gold)');
+        c.setAttribute('stroke-width', '0.18');
+      }
+      if (isUnselected) c.setAttribute('opacity', '0.25');
+      preGroup.appendChild(c);
+
+      const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t.setAttribute('x', v.x);
+      t.setAttribute('y', -v.y);
+      t.setAttribute('dx', '0.5');
+      t.setAttribute('dy', '-0.4');
+      t.setAttribute('font-family', 'ui-monospace, Menlo, Consolas, monospace');
+      t.setAttribute('font-size', '0.8');
+      t.setAttribute('fill', VERTEX_COLORS[i]);
+      t.setAttribute('font-weight', '600');
+      if (isUnselected) t.setAttribute('opacity', '0.25');
+      t.textContent = v.name;
+      preGroup.appendChild(t);
+
+      // drag
+      c.addEventListener('pointerdown', e => {
+        c.dataset.dragging = '1';
+        c.setPointerCapture(e.pointerId);
+        stopAnim();
+        slider.value = 0;
+        renderAtFraction(0);
+      });
+      c.addEventListener('pointermove', e => {
+        if (c.dataset.dragging !== '1') return;
+        const pt = svg.createSVGPoint();
+        pt.x = e.clientX; pt.y = e.clientY;
+        const sp = pt.matrixTransform(svg.getScreenCTM().inverse());
+        const nx = Math.max(-9, Math.min(9, Math.round(sp.x)));
+        const ny = Math.max(-9, Math.min(9, Math.round(-sp.y)));
+        vertices[i].x = nx;
+        vertices[i].y = ny;
+        renderPreImage();
+        const t = parseInt(slider.value, 10) / 100;
+        renderAtFraction(t);
+      });
+      c.addEventListener('pointerup', e => { c.dataset.dragging = '0'; c.releasePointerCapture(e.pointerId); });
+      c.addEventListener('pointercancel', () => { c.dataset.dragging = '0'; });
+    });
+
+    if (mode === 'one') {
+      poly.setAttribute('opacity', '0.25');
+    }
+  }
+
+  function renderAtFraction(t) {
+    const curAng = angle * t;
+    const animatedIdx = (mode === 'one') ? [selectedVertex] : vertices.map((_, i) => i);
+
+    // compute positions for ALL vertices (we'll render the image based on mode)
+    const allCurr = vertices.map(v => {
+      const [cx, cy] = rotateMath(v.x, v.y, curAng, dir);
+      return { x: cx, y: cy };
+    });
+
+    // Clear and rebuild image group
+    imgGroup.innerHTML = '';
+    arcsGroup.innerHTML = '';
+
+    if (t > 0.001) {
+      imgGroup.setAttribute('opacity', '1');
+
+      if (mode === 'all') {
+        const ipoly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        ipoly.setAttribute('points', allCurr.map(p => `${clean(p.x)},${-clean(p.y)}`).join(' '));
+        ipoly.setAttribute('fill', 'rgba(5,150,105,0.10)');
+        ipoly.setAttribute('stroke', 'var(--img)');
+        ipoly.setAttribute('stroke-width', '0.12');
+        ipoly.setAttribute('stroke-linejoin', 'round');
+        imgGroup.appendChild(ipoly);
+        allCurr.forEach((p, i) => {
+          const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          c.setAttribute('cx', clean(p.x));
+          c.setAttribute('cy', -clean(p.y));
+          c.setAttribute('r', '0.32');
+          c.setAttribute('fill', IMG_COLORS[i]);
+          imgGroup.appendChild(c);
+          const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          txt.setAttribute('x', clean(p.x));
+          txt.setAttribute('y', -clean(p.y));
+          txt.setAttribute('dx', '0.5');
+          txt.setAttribute('dy', '-0.4');
+          txt.setAttribute('font-family', 'ui-monospace, Menlo, Consolas, monospace');
+          txt.setAttribute('font-size', '0.8');
+          txt.setAttribute('fill', IMG_COLORS[i]);
+          txt.setAttribute('font-weight', '600');
+          txt.textContent = vertices[i].name + '′';
+          imgGroup.appendChild(txt);
+        });
+      } else {
+        // 'one' mode — single vertex image
+        const i = selectedVertex;
+        const p = allCurr[i];
+        const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        c.setAttribute('cx', clean(p.x));
+        c.setAttribute('cy', -clean(p.y));
+        c.setAttribute('r', '0.32');
+        c.setAttribute('fill', IMG_COLORS[i]);
+        imgGroup.appendChild(c);
+        const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        txt.setAttribute('x', clean(p.x));
+        txt.setAttribute('y', -clean(p.y));
+        txt.setAttribute('dx', '0.5');
+        txt.setAttribute('dy', '-0.4');
+        txt.setAttribute('font-family', 'ui-monospace, Menlo, Consolas, monospace');
+        txt.setAttribute('font-size', '0.8');
+        txt.setAttribute('fill', IMG_COLORS[i]);
+        txt.setAttribute('font-weight', '600');
+        txt.textContent = vertices[i].name + '′';
+        imgGroup.appendChild(txt);
+      }
+
+      // arcs
+      animatedIdx.forEach(i => {
+        const v = vertices[i];
+        const r = norm(v.x, v.y);
+        if (r > 0.01) {
+          const startAngMath = Math.atan2(v.y, v.x);
+          const sweepSign = dir === 'ccw' ? 1 : -1;
+          const curAngRad = curAng * Math.PI / 180 * sweepSign;
+          const endAngMath = startAngMath + curAngRad;
+          const sx = r * Math.cos(startAngMath), sy = -r * Math.sin(startAngMath);
+          const ex = r * Math.cos(endAngMath), ey = -r * Math.sin(endAngMath);
+          const largeArc = Math.abs(curAng) > 180 ? 1 : 0;
+          const svgSweep = dir === 'ccw' ? 0 : 1;
+          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          path.setAttribute('d', `M ${sx} ${sy} A ${r} ${r} 0 ${largeArc} ${svgSweep} ${ex} ${ey}`);
+          path.setAttribute('fill', 'none');
+          path.setAttribute('stroke', VERTEX_COLORS[i]);
+          path.setAttribute('stroke-width', '0.08');
+          path.setAttribute('stroke-dasharray', '0.25 0.18');
+          path.setAttribute('opacity', '0.85');
+          arcsGroup.appendChild(path);
+        }
+      });
+
+      // angle label on biggest-radius vertex
+      let maxR = 0, maxIdx = -1;
+      animatedIdx.forEach(i => {
+        const r = norm(vertices[i].x, vertices[i].y);
+        if (r > maxR) { maxR = r; maxIdx = i; }
+      });
+      if (maxIdx >= 0 && maxR > 0.5) {
+        const v = vertices[maxIdx];
+        const startAngMath = Math.atan2(v.y, v.x);
+        const sweepSign = dir === 'ccw' ? 1 : -1;
+        const curAngRad = curAng * Math.PI / 180 * sweepSign;
+        const midAngMath = startAngMath + curAngRad / 2;
+        const labR = maxR + 1.0;
+        const al = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        al.setAttribute('font-family', 'ui-monospace, Menlo, Consolas, monospace');
+        al.setAttribute('font-size', '0.7');
+        al.setAttribute('fill', 'var(--arc)');
+        al.setAttribute('text-anchor', 'middle');
+        al.setAttribute('x', labR * Math.cos(midAngMath));
+        al.setAttribute('y', -labR * Math.sin(midAngMath));
+        al.textContent = `${Math.round(curAng)}°`;
+        arcsGroup.appendChild(al);
+      }
+
+      // populate coord table
+      if (mode === 'all') {
+        renderCoordTable(allCurr.map(p => ({ x: clean(p.x), y: clean(p.y) })));
+      } else {
+        const partial = vertices.map((_, k) => k === selectedVertex
+          ? { x: clean(allCurr[selectedVertex].x), y: clean(allCurr[selectedVertex].y) }
+          : null);
+        renderCoordTable(partial);
+      }
+
+      // fade pre-image during mid-rotation
+      if (t > 0.05 && t < 0.99) {
+        preGroup.classList.add('faded');
+      } else {
+        preGroup.classList.remove('faded');
+      }
+    } else {
+      imgGroup.setAttribute('opacity', '0');
+      preGroup.classList.remove('faded');
+      renderCoordTable(null);
+    }
+
+    sliderVal.textContent = `${Math.round(curAng)}°`;
+  }
+
+  // shape selection
+  shapeSeg.addEventListener('click', e => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    shapeSeg.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    shape = btn.dataset.shape;
+    vertices = JSON.parse(JSON.stringify(SHAPES[shape]));
+    selectedVertex = 0;
+    stopAnim();
+    slider.value = 0;
+    rebuildVertexPicker();
+    renderPreImage();
+    renderAtFraction(0);
+  });
+
+  // mode selection
+  modeSeg.addEventListener('click', e => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    modeSeg.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    mode = btn.dataset.mode;
+    vertexPickerGroup.style.display = (mode === 'one') ? 'block' : 'none';
+    stopAnim();
+    slider.value = 0;
+    renderPreImage();
+    renderAtFraction(0);
+  });
+
+  // angle / direction
+  angleSeg.addEventListener('click', e => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    angleSeg.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    angle = parseInt(btn.dataset.angle, 10);
+    dir = btn.dataset.dir;
+    const t = parseInt(slider.value, 10) / 100;
+    renderAtFraction(t);
+  });
+
+  // slider scrub
+  slider.addEventListener('input', () => {
+    if (anim.running) stopAnim();
+    const t = parseInt(slider.value, 10) / 100;
+    renderAtFraction(t);
+  });
+
+  function stopAnim() {
+    if (anim.raf) cancelAnimationFrame(anim.raf);
+    anim.running = false;
+    anim.paused = false;
+    rotateBtn.textContent = 'Animate';
+    pauseBtn.disabled = true;
+    pauseBtn.textContent = 'Pause';
+  }
+
+  function startAnim() {
+    const startT = parseInt(slider.value, 10) / 100;
+    if (startT >= 0.999) {
+      slider.value = 0;
+      renderAtFraction(0);
+    }
+    anim.running = true;
+    anim.paused = false;
+    rotateBtn.textContent = 'Restart';
+    pauseBtn.disabled = false;
+    pauseBtn.textContent = 'Pause';
+    const from = parseInt(slider.value, 10) / 100;
+    const FULL_DURATION = 1800;
+    let startTime = performance.now();
+
+    function frame(now) {
+      if (!anim.running) return;
+      if (anim.paused) { anim.raf = requestAnimationFrame(frame); return; }
+      const elapsed = now - startTime;
+      let t = from + (elapsed / FULL_DURATION);
+      if (t >= 1) {
+        t = 1;
+        slider.value = 100;
+        renderAtFraction(1);
+        anim.running = false;
+        rotateBtn.textContent = 'Animate again';
+        pauseBtn.disabled = true;
+        return;
+      }
+      slider.value = Math.round(t * 100);
+      renderAtFraction(t);
+      anim.raf = requestAnimationFrame(frame);
+    }
+    anim.raf = requestAnimationFrame(frame);
+  }
+
+  rotateBtn.addEventListener('click', () => {
+    if (anim.running) {
+      stopAnim();
+      slider.value = 0;
+      renderAtFraction(0);
+    }
+    startAnim();
+  });
+
+  pauseBtn.addEventListener('click', () => {
+    if (!anim.running) return;
+    anim.paused = !anim.paused;
+    pauseBtn.textContent = anim.paused ? 'Resume' : 'Pause';
+    if (!anim.paused) {
+      const from = parseInt(slider.value, 10) / 100;
+      stopAnim();
+      slider.value = Math.round(from * 100);
+      startAnim();
+    }
+  });
+
+  resetBtn.addEventListener('click', () => {
+    stopAnim();
+    vertices = JSON.parse(JSON.stringify(SHAPES[shape]));
+    selectedVertex = 0;
+    slider.value = 0;
+    rebuildVertexPicker();
+    renderPreImage();
+    renderAtFraction(0);
+  });
+
+  refreshBtn.addEventListener('click', () => {
+    stopAnim();
+    const numVerts = (shape === 'triangle') ? 3 : 4;
+    const names = ['A', 'B', 'C', 'D'];
+    const newVerts = [];
+    let attempts = 0;
+    while (newVerts.length < numVerts && attempts < 100) {
+      const x = Math.floor(Math.random() * 17) - 8;
+      const y = Math.floor(Math.random() * 17) - 8;
+      if (x === 0 && y === 0) { attempts++; continue; }
+      if (newVerts.some(v => v.x === x && v.y === y)) { attempts++; continue; }
+      newVerts.push({ x, y, name: names[newVerts.length] });
+      attempts++;
+    }
+    if (newVerts.length === numVerts) {
+      vertices = newVerts;
+    }
+    selectedVertex = 0;
+    slider.value = 0;
+    rebuildVertexPicker();
+    renderPreImage();
+    renderAtFraction(0);
+  });
+
+  rebuildVertexPicker();
+  renderPreImage();
+  renderAtFraction(0);
+})();
+
+/* ==============================================================
+   QUIZ LOGIC (formative + summative)
+   ============================================================== */
+(function quizLogic() {
+  // ========================================================================
+  // ROTATION HELPER (matches the rules used elsewhere in lesson)
+  // ========================================================================
+  function rot(x, y, deg, dir) {
+    // dir: 'ccw' or 'cw' (180 ignores dir)
+    if (deg === 180) return [-x, -y];
+    if (deg === 90 && dir === 'ccw') return [-y, x];
+    if (deg === 90 && dir === 'cw') return [y, -x];
+    return [x, y];
+  }
+  function fmtPt(x, y) {
+    const fx = (Number.isInteger(x) ? x : x.toFixed(0));
+    const fy = (Number.isInteger(y) ? y : y.toFixed(0));
+    // use minus sign for negatives
+    return `(${fx < 0 ? '−' + Math.abs(fx) : fx}, ${fy < 0 ? '−' + Math.abs(fy) : fy})`;
+  }
+  function rint(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+  function pick(arr) { return arr[rint(0, arr.length - 1)]; }
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+  function randPoint(allowZero=false) {
+    let x, y;
+    do {
+      x = rint(-7, 7); y = rint(-7, 7);
+    } while ((!allowZero && x === 0 && y === 0));
+    return [x, y];
+  }
+
+  // ========================================================================
+  // QUESTION GENERATORS
+  // Each returns {prompt, options:[{label, correct}], explainRight, explainWrong}
+  // ========================================================================
+
+  // 180° coordinate-rotation question
+  function gen180Coords() {
+    const [x, y] = randPoint();
+    const [ax, ay] = rot(x, y, 180);
+    const correct = fmtPt(ax, ay);
+    // distractors: swap, only x flipped, only y flipped
+    const distractors = new Set([
+      fmtPt(y, x),
+      fmtPt(-x, y),
+      fmtPt(x, -y),
+      fmtPt(y, -x),
+      fmtPt(-y, x)
+    ]);
+    distractors.delete(correct);
+    const wrongOpts = shuffle(Array.from(distractors)).slice(0, 3);
+    const options = shuffle([{label: correct, correct: true}, ...wrongOpts.map(l => ({label: l, correct: false}))]);
+    return {
+      prompt: `If P = ${fmtPt(x, y)}, what are the coordinates of P′ after a 180° rotation about the origin?`,
+      options,
+      explainRight: `Yes — for 180°, both signs flip: ${fmtPt(x, y)} → ${correct}.`,
+      explainWrong: `Apply (x, y) → (−x, −y). ${fmtPt(x, y)} → ${correct}.`,
+      tag: '180° rotation'
+    };
+  }
+
+  // 90° CCW coordinate-rotation question
+  function gen90CCWCoords() {
+    const [x, y] = randPoint();
+    const [ax, ay] = rot(x, y, 90, 'ccw');
+    const correct = fmtPt(ax, ay);
+    const distractors = new Set([
+      fmtPt(y, -x),    // CW result
+      fmtPt(-x, -y),   // 180 result
+      fmtPt(y, x),     // swap
+      fmtPt(-x, y),
+      fmtPt(x, -y)
+    ]);
+    distractors.delete(correct);
+    const wrongOpts = shuffle(Array.from(distractors)).slice(0, 3);
+    const options = shuffle([{label: correct, correct: true}, ...wrongOpts.map(l => ({label: l, correct: false}))]);
+    return {
+      prompt: `Point P${fmtPt(x, y)} is rotated 90° counterclockwise about the origin. Find P′.`,
+      options,
+      explainRight: `Right. (x, y) → (−y, x): ${fmtPt(x, y)} → ${correct}.`,
+      explainWrong: `Apply the 90° CCW rule (x, y) → (−y, x). ${fmtPt(x, y)} → ${correct}.`,
+      tag: '90° CCW rotation'
+    };
+  }
+
+  // 90° CW coordinate-rotation question
+  function gen90CWCoords() {
+    const [x, y] = randPoint();
+    const [ax, ay] = rot(x, y, 90, 'cw');
+    const correct = fmtPt(ax, ay);
+    const distractors = new Set([
+      fmtPt(-y, x),    // CCW result
+      fmtPt(-x, -y),   // 180 result
+      fmtPt(y, x),
+      fmtPt(-x, y),
+      fmtPt(x, -y)
+    ]);
+    distractors.delete(correct);
+    const wrongOpts = shuffle(Array.from(distractors)).slice(0, 3);
+    const options = shuffle([{label: correct, correct: true}, ...wrongOpts.map(l => ({label: l, correct: false}))]);
+    return {
+      prompt: `Point P${fmtPt(x, y)} is rotated 90° clockwise about the origin. Find P′.`,
+      options,
+      explainRight: `Right. (x, y) → (y, −x): ${fmtPt(x, y)} → ${correct}.`,
+      explainWrong: `Apply the 90° CW rule (x, y) → (y, −x). ${fmtPt(x, y)} → ${correct}.`,
+      tag: '90° CW rotation'
+    };
+  }
+
+  // Pattern recognition — describe a rule in words
+  function genPatternRecognition() {
+    const variant = pick(['180', 'ccw', 'cw']);
+    let prompt, correctLabel, distractors;
+    if (variant === '180') {
+      prompt = `Which statement best describes a 180° rotation about the origin?`;
+      correctLabel = 'Both signs flip — (x, y) becomes (−x, −y).';
+      distractors = [
+        'The coordinates swap places — (x, y) becomes (y, x).',
+        'Only the x-coordinate flips sign.',
+        'Only the y-coordinate flips sign.',
+        'The coordinates swap and one flips — (x, y) becomes (−y, x).'
+      ];
+    } else if (variant === 'ccw') {
+      prompt = `Which statement best describes a 90° counterclockwise rotation about the origin?`;
+      correctLabel = 'Coordinates swap, then the new x flips sign — (x, y) becomes (−y, x).';
+      distractors = [
+        'Coordinates swap, then the new y flips sign — (x, y) becomes (y, −x).',
+        'Both signs flip — (x, y) becomes (−x, −y).',
+        'Only the x-coordinate flips sign.',
+        'Coordinates simply swap places — (x, y) becomes (y, x).'
+      ];
+    } else {
+      prompt = `Which statement best describes a 90° clockwise rotation about the origin?`;
+      correctLabel = 'Coordinates swap, then the new y flips sign — (x, y) becomes (y, −x).';
+      distractors = [
+        'Coordinates swap, then the new x flips sign — (x, y) becomes (−y, x).',
+        'Both signs flip — (x, y) becomes (−x, −y).',
+        'Only the y-coordinate flips sign.',
+        'Coordinates simply swap places — (x, y) becomes (y, x).'
+      ];
+    }
+    const wrongOpts = shuffle(distractors).slice(0, 3);
+    const options = shuffle([{label: correctLabel, correct: true}, ...wrongOpts.map(l => ({label: l, correct: false}))]);
+    return {
+      prompt,
+      options,
+      explainRight: 'Exactly right.',
+      explainWrong: `The correct description is: "${correctLabel}"`,
+      tag: 'Pattern recognition'
+    };
+  }
+
+  // Identify the rule (formula form)
+  function genRuleIdentify() {
+    const variant = pick(['90ccw', '90cw', '180']);
+    const RULES = {
+      '90ccw': '(x, y) → (−y, x)',
+      '90cw':  '(x, y) → (y, −x)',
+      '180':   '(x, y) → (−x, −y)'
+    };
+    const NAMES = {
+      '90ccw': '90° counterclockwise',
+      '90cw':  '90° clockwise',
+      '180':   '180°'
+    };
+    const correct = RULES[variant];
+    const wrong = Object.values(RULES).filter(r => r !== correct).concat(['(x, y) → (x, −y)', '(x, y) → (−x, y)', '(x, y) → (y, x)']);
+    const wrongOpts = shuffle(wrong).slice(0, 3);
+    const options = shuffle([{label: correct, correct: true}, ...wrongOpts.map(l => ({label: l, correct: false}))]);
+    return {
+      prompt: `Which is the rule for a ${NAMES[variant]} rotation about the origin?`,
+      options,
+      explainRight: `Correct.`,
+      explainWrong: `The ${NAMES[variant]} rule is ${correct}.`,
+      tag: 'Identify rule'
+    };
+  }
+
+  // Reverse-engineer the rotation: given pre & image, identify which rotation
+  function genWhichRotation() {
+    const [x, y] = randPoint();
+    const variant = pick(['90ccw', '90cw', '180']);
+    let imgX, imgY;
+    if (variant === '90ccw') [imgX, imgY] = rot(x, y, 90, 'ccw');
+    else if (variant === '90cw') [imgX, imgY] = rot(x, y, 90, 'cw');
+    else [imgX, imgY] = rot(x, y, 180);
+    const correctLabel = (variant === '90ccw' ? '90° counterclockwise'
+                       : variant === '90cw' ? '90° clockwise' : '180°');
+    const wrongOpts = ['90° counterclockwise', '90° clockwise', '180°', 'No rotation — same point'].filter(l => l !== correctLabel);
+    const options = shuffle([{label: correctLabel, correct: true}, ...shuffle(wrongOpts).slice(0,3).map(l => ({label: l, correct: false}))]);
+    return {
+      prompt: `A point at ${fmtPt(x, y)} is rotated about the origin. Its image lands at ${fmtPt(imgX, imgY)}. Which rotation was applied?`,
+      options,
+      explainRight: `Correct — applying the ${correctLabel} rule to ${fmtPt(x, y)} gives ${fmtPt(imgX, imgY)}.`,
+      explainWrong: `Test each rule on ${fmtPt(x, y)}: only ${correctLabel} sends it to ${fmtPt(imgX, imgY)}.`,
+      tag: 'Identify rotation'
+    };
+  }
+
+  // Distance preservation T/F
+  function genDistancePreservation() {
+    const variant = pick(['preserved', 'changes']);
+    const correctLabel = (variant === 'preserved')
+      ? 'False — distance from the center is always preserved.'
+      : 'True — but only because the point moves; its distance from the origin stays the same.';
+    // we always use the "preserved" framing for clarity
+    const prompt = 'After a rotation about the origin, the distance from a point to the origin always changes.';
+    const correctOpt = 'False — distance from the center is always preserved.';
+    const distractors = [
+      'True — the rotation moves the point.',
+      'True — only when rotating 180°.',
+      'It depends on the angle of rotation.',
+      'True — only when rotating 90°.'
+    ];
+    const wrongOpts = shuffle(distractors).slice(0, 3);
+    const options = shuffle([{label: correctOpt, correct: true}, ...wrongOpts.map(l => ({label: l, correct: false}))]);
+    return {
+      prompt,
+      options,
+      explainRight: 'Correct. A rotation is a rigid motion — distance from the center is preserved.',
+      explainWrong: 'Rotations are rigid motions. Distance from the center is always preserved.',
+      tag: 'True or False'
+    };
+  }
+
+  // Symmetric figure recognition
+  function genSymmetryReasoning() {
+    const r = rint(2, 4);
+    const verts = `(${r}, ${r}), (−${r}, ${r}), (−${r}, −${r}), (${r}, −${r})`;
+    const correctLabel = 'looks identical to the original — it lands on top of itself.';
+    const distractors = [
+      'is in a different position from the original.',
+      'has different side lengths than the original.',
+      'is reflected, not rotated.',
+      'has its vertices in different quadrants but the same shape.'
+    ];
+    const wrongOpts = shuffle(distractors).slice(0, 3);
+    const options = shuffle([{label: correctLabel, correct: true}, ...wrongOpts.map(l => ({label: l, correct: false}))]);
+    return {
+      prompt: `A square has vertices at ${verts}. After a 90° rotation about the origin (in either direction), the image:`,
+      options,
+      explainRight: 'Right. A square centered at the origin maps to itself under any 90° rotation — that\'s rotational symmetry.',
+      explainWrong: 'Plot the square. Each vertex maps to where another vertex already is, so the image lands exactly on the original.',
+      tag: 'Reasoning · symmetry'
+    };
+  }
+
+  // Composition — two rotations combined
+  function genComposition() {
+    const variant = pick(['ccw_ccw', 'cw_cw', 'ccw_180']);
+    let prompt, correctLabel, distractors;
+    if (variant === 'ccw_ccw') {
+      prompt = 'A figure is rotated 90° CCW, and then its image is rotated another 90° CCW. What single rotation gives the same result?';
+      correctLabel = '180° about the origin.';
+      distractors = ['90° CCW about the origin.', '90° CW about the origin.', '270° CCW about the origin (same as 90° CW).', 'No rotation — back to start.'];
+    } else if (variant === 'cw_cw') {
+      prompt = 'A figure is rotated 90° CW, and then its image is rotated another 90° CW. What single rotation gives the same result?';
+      correctLabel = '180° about the origin.';
+      distractors = ['90° CW about the origin.', '90° CCW about the origin.', 'No rotation — back to start.', '270° CW about the origin (same as 90° CCW).'];
+    } else {
+      prompt = 'A figure is rotated 90° CCW, and then its image is rotated 180°. What single rotation gives the same result?';
+      correctLabel = '90° CW about the origin.';
+      distractors = ['90° CCW about the origin.', '180° about the origin.', '270° CCW about the origin.', 'No rotation — back to start.'];
+    }
+    const wrongOpts = shuffle(distractors).slice(0, 3);
+    const options = shuffle([{label: correctLabel, correct: true}, ...wrongOpts.map(l => ({label: l, correct: false}))]);
+    return {
+      prompt,
+      options,
+      explainRight: `Correct — ${correctLabel.replace(/\.$/, '')} produces the same final image.`,
+      explainWrong: `Combine the two rotations: their angles add. The single equivalent rotation is ${correctLabel.replace(/\.$/, '')}.`,
+      tag: 'Composition'
+    };
+  }
+
+  // ========================================================================
+  // QUIZ DEFINITIONS
+  // ========================================================================
+  // Checkpoint A — formative, 3 questions (intro: 180 → 90 CCW → pattern)
+  const CHECKPOINT_A_GENS = [
+    [gen180Coords],            // slot 1: 180° calculation
+    [gen90CCWCoords],          // slot 2: 90° CCW calculation
+    [genPatternRecognition]    // slot 3: pattern recognition
+  ];
+
+  // Summative — 6 questions, mix of generators
+  const ASSESSMENT_GENS = [
+    [genRuleIdentify],         // slot 1: identify a rule
+    [gen180Coords],            // slot 2: 180° calculation
+    [gen90CWCoords, gen90CCWCoords], // slot 3: 90° calculation
+    [genDistancePreservation], // slot 4: T/F distance
+    [gen90CCWCoords, gen90CWCoords], // slot 5: 90° calculation (different direction emphasis)
+    [genSymmetryReasoning, genComposition] // slot 6: reasoning
+  ];
+
+  // ========================================================================
+  // RENDERING
+  // ========================================================================
+  const LETTERS = ['a', 'b', 'c', 'd'];
+
+  function renderQuestionBlock(q, slotIdx, qNumLabel) {
+    const block = document.createElement('div');
+    block.className = 'question-block';
+    block.dataset.slot = slotIdx;
+    block.dataset.locked = '';
+
+    const numEl = document.createElement('div');
+    numEl.className = 'q-num';
+    numEl.textContent = `${qNumLabel}${q.tag ? ' — ' + q.tag : ''}`;
+    block.appendChild(numEl);
+
+    const promptEl = document.createElement('div');
+    promptEl.className = 'q-prompt';
+    promptEl.textContent = q.prompt;
+    block.appendChild(promptEl);
+
+    const optsWrap = document.createElement('div');
+    optsWrap.className = 'q-options';
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'q-option';
+      btn.dataset.val = LETTERS[i];
+      btn.dataset.correct = opt.correct ? '1' : '0';
+      btn.textContent = opt.label;
+      btn.addEventListener('click', () => {
+        if (block.dataset.locked === '1') return;
+        block.querySelectorAll('.q-option').forEach(o => o.classList.add('locked'));
+        if (opt.correct) {
+          btn.classList.add('correct');
+          fb.textContent = q.explainRight;
+          fb.classList.add('show', 'right');
+          fb.classList.remove('wrong-fb');
+          block.dataset.score = '1';
+        } else {
+          btn.classList.add('wrong');
+          // highlight the right option
+          block.querySelectorAll('.q-option').forEach(o => {
+            if (o.dataset.correct === '1') o.classList.add('correct');
+          });
+          fb.textContent = q.explainWrong;
+          fb.classList.add('show', 'wrong-fb');
+          fb.classList.remove('right');
+          block.dataset.score = '0';
+        }
+        block.dataset.locked = '1';
+      });
+      optsWrap.appendChild(btn);
+    });
+    block.appendChild(optsWrap);
+
+    const fb = document.createElement('div');
+    fb.className = 'q-feedback';
+    block.appendChild(fb);
+
+    return block;
+  }
+
+  function buildQuiz(containerEl, gensList, prefix) {
+    containerEl.innerHTML = '';
+    gensList.forEach((genArr, idx) => {
+      const gen = pick(genArr);
+      const q = gen();
+      const block = renderQuestionBlock(q, idx, `${prefix} ${idx + 1}`);
+      containerEl.appendChild(block);
+    });
+  }
+
+  // ========================================================================
+  // INIT
+  // ========================================================================
+  const checkpointAEl = document.getElementById('checkpoint-a-slots');
+  const assessmentEl = document.getElementById('assessment-slots');
+
+  buildQuiz(checkpointAEl, CHECKPOINT_A_GENS, 'Question');
+  buildQuiz(assessmentEl, ASSESSMENT_GENS, 'Question');
+
+  document.getElementById('checkpoint-a-refresh').addEventListener('click', () => {
+    buildQuiz(checkpointAEl, CHECKPOINT_A_GENS, 'Question');
+  });
+
+  // Reveal-answer buttons (practice section — not regenerated)
+  document.querySelectorAll('.reveal-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const content = btn.nextElementSibling;
+      content.classList.toggle('show');
+      btn.textContent = content.classList.contains('show') ? 'Hide answer' : 'Reveal answer';
+    });
+  });
+
+  // ========================================================================
+  // SUMMATIVE: submit, refresh, reset
+  // ========================================================================
+  const submitBtn = document.getElementById('submit-quiz');
+  const resetBtn = document.getElementById('reset-quiz');
+  const refreshBtn = document.getElementById('assessment-refresh');
+  const banner = document.getElementById('score-banner');
+  const scoreVal = document.getElementById('score-val');
+  const scoreMsg = document.getElementById('score-msg');
+
+  refreshBtn.addEventListener('click', () => {
+    buildQuiz(assessmentEl, ASSESSMENT_GENS, 'Question');
+    banner.classList.remove('show');
+  });
+
+  resetBtn.addEventListener('click', () => {
+    assessmentEl.querySelectorAll('.question-block').forEach(qb => {
+      qb.dataset.locked = '';
+      qb.dataset.score = '';
+      qb.querySelectorAll('.q-option').forEach(o => o.classList.remove('correct', 'wrong', 'locked'));
+      const fb = qb.querySelector('.q-feedback');
+      fb.classList.remove('show', 'right', 'wrong-fb');
+      fb.textContent = '';
+    });
+    banner.classList.remove('show');
+  });
+
+  submitBtn.addEventListener('click', () => {
+    const summativeQs = assessmentEl.querySelectorAll('.question-block');
+    let score = 0, unanswered = 0, wrong = 0;
+    summativeQs.forEach(qb => {
+      if (qb.dataset.score === '1') score++;
+      else if (qb.dataset.score === '0') wrong++;
+      else unanswered++;
+    });
+    const total = summativeQs.length;
+    scoreVal.textContent = `${score} / ${total}`;
+    let msg;
+    if (unanswered > 0 && score < total) {
+      const ans = total - unanswered;
+      msg = `${ans} of ${total} answered · ${score} correct, ${wrong} incorrect. Finish the rest, then submit again.`;
+    } else if (score === total) {
+      msg = 'Perfect — every answer correct. You\'ve got rotations down.';
+    } else {
+      const pct = Math.round((score / total) * 100);
+      if (pct >= 83) msg = `Strong work — ${score}/${total}. Review the one you missed and you\'re set.`;
+      else if (pct >= 50) msg = `${score}/${total}. Revisit the rules section, then try a fresh set with "New questions".`;
+      else msg = `${score}/${total}. Step back through the sandboxes and rules — they\'ll click. Then come back and try again.`;
+    }
+    scoreMsg.textContent = msg;
+    banner.classList.add('show');
+    banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // Trigger celebration if perfect score AND all answered
+    if (score === total && unanswered === 0) {
+      setTimeout(() => triggerCelebration(), 700);
+    }
+  });
+
+  // ========================================================================
+  // CELEBRATION (perfect score)
+  // ========================================================================
+  const overlay = document.getElementById('celebrate-overlay');
+  const restartBtn = document.getElementById('celebrate-restart');
+  const starSvg = document.getElementById('celebrate-star');
+  const confettiCanvas = document.getElementById('celebrate-confetti');
+
+  function triggerCelebration() {
+    overlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    // Reset animation states
+    starSvg.classList.remove('squish', 'spin', 'explode');
+    restartBtn.classList.remove('show');
+    confettiCanvas.style.opacity = '0';
+    // Force reflow then start sequence
+    void starSvg.offsetWidth;
+
+    // Phase 1: stretch & contract
+    starSvg.classList.add('squish');
+    // Phase 2: rotate with increasing speed (after squish ends, ~1.2s)
+    setTimeout(() => {
+      starSvg.classList.add('spin');
+    }, 1300);
+    // Phase 3: explode + confetti (after spin, ~3.0s after start)
+    setTimeout(() => {
+      starSvg.classList.add('explode');
+      launchConfetti();
+    }, 3100);
+    // Phase 4: show restart button (after confetti starts, give time to enjoy)
+    setTimeout(() => {
+      restartBtn.classList.add('show');
+    }, 4200);
+  }
+
+  function closeCelebration() {
+    overlay.classList.remove('show');
+    document.body.style.overflow = '';
+    starSvg.classList.remove('squish', 'spin', 'explode');
+    confettiCanvas.style.opacity = '0';
+    const ctx = confettiCanvas.getContext('2d');
+    ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  }
+
+  restartBtn.addEventListener('click', () => {
+    closeCelebration();
+    // Scroll to top of lesson
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Refresh quiz so they have a fresh experience
+    buildQuiz(assessmentEl, ASSESSMENT_GENS, 'Question');
+    buildQuiz(checkpointAEl, CHECKPOINT_A_GENS, 'Question');
+    banner.classList.remove('show');
+  });
+
+  // Confetti — vibrant, varied colors, gravity, rotation
+  function launchConfetti() {
+    const canvas = confettiCanvas;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    ctx.scale(dpr, dpr);
+    canvas.style.opacity = '1';
+
+    const W = window.innerWidth, H = window.innerHeight;
+    const colors = ['#e11d48', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#f97316', '#06b6d4', '#84cc16', '#fbbf24'];
+
+    // Burst from center
+    const cx = W / 2, cy = H / 2;
+    const particles = [];
+    const N = 220;
+    for (let i = 0; i < N; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      const speed = 6 + Math.random() * 10;
+      particles.push({
+        x: cx + (Math.random() - 0.5) * 30,
+        y: cy + (Math.random() - 0.5) * 30,
+        vx: Math.cos(ang) * speed,
+        vy: Math.sin(ang) * speed - 3, // bias upward
+        rot: Math.random() * Math.PI * 2,
+        vrot: (Math.random() - 0.5) * 0.4,
+        size: 6 + Math.random() * 8,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        shape: Math.random() < 0.5 ? 'rect' : 'circle',
+        life: 0,
+        maxLife: 140 + Math.random() * 80
+      });
+    }
+
+    let frameCount = 0;
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      let alive = 0;
+      particles.forEach(p => {
+        if (p.life >= p.maxLife) return;
+        p.life++;
+        p.vy += 0.18; // gravity
+        p.vx *= 0.995;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.vrot;
+        const fadeStart = p.maxLife * 0.7;
+        const alpha = p.life < fadeStart ? 1 : 1 - (p.life - fadeStart) / (p.maxLife - fadeStart);
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = p.color;
+        if (p.shape === 'rect') {
+          ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+        } else {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+        if (p.life < p.maxLife) alive++;
+      });
+      frameCount++;
+      if (alive > 0 && frameCount < 300) {
+        requestAnimationFrame(draw);
+      } else {
+        // fade canvas
+        canvas.style.transition = 'opacity 0.6s ease';
+        canvas.style.opacity = '0.7';
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+})();
+</script>
+
+</body>
+</html>
